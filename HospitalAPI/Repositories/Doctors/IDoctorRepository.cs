@@ -4,9 +4,10 @@ namespace HospitalAPI.Repositories.Doctors
 {
     public interface IDoctorRepository
     {
-        Task<IEnumerable<Doctor>> GetDoctorsAsync();
-        Task<Doctor?> GetDoctorByIdAsync(int id); 
-        Task<bool> HasDoctorAsync(int id);
-        Task UpdateDoctorAsync(Doctor doctor);
+        Task<IEnumerable<Doctor>> GetAsync();
+        Task<Doctor?> GetByIdAsync(int id); 
+        Task<bool> HasAsync(int id);
+        Task UpdateAsync(Doctor doctor);
+        Task LoadSpecialitiesAsync(Doctor doctor);
     }
 }

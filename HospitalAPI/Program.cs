@@ -1,6 +1,8 @@
 using HospitalAPI.Database;
 using HospitalAPI.Repositories.Doctors;
 using HospitalAPI.Repositories.Doctors.Impls;
+using HospitalAPI.Repositories.Specialities;
+using HospitalAPI.Repositories.Specialities.Impls;
 using HospitalAPI.Repositories.WorkHistories;
 using HospitalAPI.Repositories.WorkHistories.Impls;
 using HospitalAPI.Services;
@@ -25,9 +27,10 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 //Repositories
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IWorkHistoryRepository, WorkHistoryRepository>();
+builder.Services.AddScoped<ISpecialityRepository, SpecialityRepository>();
 
 //Services
-builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IDoctorsService, DoctorsService>();
 
 var app = builder.Build();
 

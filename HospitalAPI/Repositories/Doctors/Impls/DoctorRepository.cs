@@ -15,26 +15,33 @@ namespace HospitalAPI.Repositories.Doctors.Impls
             _hospitalContext = hospitalContext;
             _doctors = hospitalContext.Doctors;
         }
-        
-        public async Task<IEnumerable<Doctor>> GetDoctorsAsync()
+
+        public async Task<IEnumerable<Doctor>> GetAsync()
         {
             return await _doctors.ToListAsync();
         }
 
-        public async Task<Doctor?> GetDoctorByIdAsync(int id)
+        public async Task<Doctor?> GetByIdAsync(int id)
         {
             return await _doctors.FirstOrDefaultAsync(doctor => doctor.IdDoctor == id);
         }
 
-        public async Task<bool> HasDoctorAsync(int id)
+        public async Task<bool> HasAsync(int id)
         {
             return await _doctors.AnyAsync(doctor => doctor.IdDoctor == id);
         }
 
-        public async Task UpdateDoctorAsync(Doctor doctor)
+        public async Task UpdateAsync(Doctor doctor)
         {
             _doctors.Entry(doctor).State = EntityState.Modified;
             await _hospitalContext.SaveChangesAsync();
+        }
+
+        public async Task LoadSpecialitiesAsync(Doctor doctor)
+        {
+            await _doctors.Entry(doctor)
+                .Collection(d => d.IdSpecialities)
+                .LoadAsync();
         }
     }
 }
