@@ -1,11 +1,18 @@
 using HospitalAPI.Database;
+using HospitalAPI.Repositories.AppointmentTimes;
+using HospitalAPI.Repositories.AppointmentTimes.Impls;
+using HospitalAPI.Repositories.ContactInfos;
+using HospitalAPI.Repositories.ContactInfos.Impls;
 using HospitalAPI.Repositories.Doctors;
 using HospitalAPI.Repositories.Doctors.Impls;
+using HospitalAPI.Repositories.Services;
+using HospitalAPI.Repositories.Services.Impls;
+using HospitalAPI.Repositories.Shifts;
+using HospitalAPI.Repositories.Shifts.Impls;
 using HospitalAPI.Repositories.Specialities;
 using HospitalAPI.Repositories.Specialities.Impls;
 using HospitalAPI.Repositories.WorkHistories;
 using HospitalAPI.Repositories.WorkHistories.Impls;
-using HospitalAPI.Services;
 using HospitalAPI.Services.Doctors;
 using HospitalAPI.Services.Doctors.Impls;
 
@@ -28,6 +35,10 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IWorkHistoryRepository, WorkHistoryRepository>();
 builder.Services.AddScoped<ISpecialityRepository, SpecialityRepository>();
+builder.Services.AddScoped<IAppointmentTimeRepository, AppointmentTimeRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
+builder.Services.AddScoped<IContactInfoRepository, ContactInfoRepository>();
 
 //Services
 builder.Services.AddScoped<IDoctorsService, DoctorsService>();

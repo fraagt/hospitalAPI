@@ -9,5 +9,6 @@ namespace HospitalAPI.Repositories.Doctors
         Task<bool> HasAsync(int id);
         Task UpdateAsync(Doctor doctor);
         Task LoadSpecialitiesAsync(Doctor doctor);
+        Task LoadServicesAsync(Doctor doctor);
     }
 }

@@ -43,5 +43,12 @@ namespace HospitalAPI.Repositories.Doctors.Impls
                 .Collection(d => d.IdSpecialities)
                 .LoadAsync();
         }
+
+        public async Task LoadServicesAsync(Doctor doctor)
+        {
+            await _doctors.Entry(doctor)
+                .Collection(d => d.IdServices)
+                .LoadAsync();
+        }
     }
 }

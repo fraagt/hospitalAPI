@@ -17,8 +17,25 @@ namespace HospitalAPI.Services.Doctors
         Task CreateSpeciality(Speciality speciality);
         Task<Speciality?> GetSpecialityById(int id);
         Task DeleteSpeciality(Speciality speciality);
+        Task<IEnumerable<AppointmentTime>> GetAppointmentTimes();
+        Task CreateAppointmentTime(AppointmentTime appointmentTime);
+        Task<AppointmentTime?> GetAppointmentTimeById(int id);
+        Task DeleteAppointmentTime(AppointmentTime appointmentTime);
+        Task<IEnumerable<Service>> GetServices();
+        Task<Service?> GetServiceById(int id);
+        Task CreateService(Service service);
+        Task DeleteService(Service service);
+        Task<IEnumerable<Shift>> GetShifts();
+        Task<Shift?> GetShiftById(int id);
+        Task CreateShift(Shift shift);
+        Task DeleteShift(Shift shift);
+        Task<IEnumerable<ContactInfo>> GetContactInfos();
+        Task<ContactInfo?> GetContactInfoById(int id);
+        Task CreateContactInfo(ContactInfo contactInfo);
+        Task DeleteContactInfo(ContactInfo contactInfo);
         
         
         Task LoadDoctorSpecialities(Doctor doctor);
+        Task LoadDoctorServices(Doctor doctor);
     }
 }

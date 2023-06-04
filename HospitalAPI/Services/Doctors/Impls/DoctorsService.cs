@@ -1,5 +1,9 @@
 using HospitalAPI.Database;
+using HospitalAPI.Repositories.AppointmentTimes;
+using HospitalAPI.Repositories.ContactInfos;
 using HospitalAPI.Repositories.Doctors;
+using HospitalAPI.Repositories.Services;
+using HospitalAPI.Repositories.Shifts;
 using HospitalAPI.Repositories.Specialities;
 using HospitalAPI.Repositories.WorkHistories;
 
@@ -10,15 +14,28 @@ namespace HospitalAPI.Services.Doctors.Impls
         private readonly IDoctorRepository _doctorRepository;
         private readonly IWorkHistoryRepository _workHistoryRepository;
         private readonly ISpecialityRepository _specialityRepository;
+        private readonly IAppointmentTimeRepository _appointmentTimeRepository;
+        private readonly IServiceRepository _serviceRepository;
+        private readonly IShiftRepository _shiftRepository;
+        private readonly IContactInfoRepository _contactInfoRepository;
 
         public DoctorsService(
             IDoctorRepository doctorRepository,
             IWorkHistoryRepository workHistoryRepository,
-            ISpecialityRepository specialityRepository)
+            ISpecialityRepository specialityRepository,
+            IAppointmentTimeRepository appointmentTimeRepository,
+            IServiceRepository serviceRepository,
+            IShiftRepository shiftRepository,
+            IContactInfoRepository contactInfoRepository
+            )
         {
             _doctorRepository = doctorRepository;
             _workHistoryRepository = workHistoryRepository;
             _specialityRepository = specialityRepository;
+            _appointmentTimeRepository = appointmentTimeRepository;
+            _serviceRepository = serviceRepository;
+            _shiftRepository = shiftRepository;
+            _contactInfoRepository = contactInfoRepository;
         }
 
         public async Task<IEnumerable<Doctor>> GetDoctors()
@@ -86,9 +103,94 @@ namespace HospitalAPI.Services.Doctors.Impls
             await _specialityRepository.DeleteAsync(speciality);
         }
 
+        public async Task<IEnumerable<AppointmentTime>> GetAppointmentTimes()
+        {
+            return await _appointmentTimeRepository.GetAsync();
+        }
+
+        public async Task CreateAppointmentTime(AppointmentTime appointmentTime)
+        {
+            await _appointmentTimeRepository.CreateAsync(appointmentTime);
+        }
+
+        public async Task<AppointmentTime?> GetAppointmentTimeById(int id)
+        {
+            return await _appointmentTimeRepository.GetByIdAsync(id);
+        }
+
+        public async Task DeleteAppointmentTime(AppointmentTime appointmentTime)
+        {
+            await _appointmentTimeRepository.DeleteAsync(appointmentTime);
+        }
+
+        public async Task<IEnumerable<Service>> GetServices()
+        {
+            return await _serviceRepository.GetAsync();
+        }
+
+        public async Task<Service?> GetServiceById(int id)
+        {
+            return await _serviceRepository.GetByIdAsync(id);
+        }
+
+        public async Task CreateService(Service service)
+        {
+            await _serviceRepository.CreateAsync(service);
+        }
+
+        public async Task DeleteService(Service service)
+        {
+            await _serviceRepository.DeleteAsync(service);
+        }
+
+        public async Task<IEnumerable<Shift>> GetShifts()
+        {
+            return await _shiftRepository.GetAsync();
+        }
+
+        public async Task<Shift?> GetShiftById(int id)
+        {
+            return await _shiftRepository.GetByIdAsync(id);
+        }
+
+        public async Task CreateShift(Shift shift)
+        {
+            await _shiftRepository.CreateAsync(shift);
+        }
+
+        public async Task DeleteShift(Shift shift)
+        {
+            await _shiftRepository.DeleteAsync(shift);
+        }
+
+        public async Task<IEnumerable<ContactInfo>> GetContactInfos()
+        {
+            return await _contactInfoRepository.GetAsync();
+        }
+
+        public async Task<ContactInfo?> GetContactInfoById(int id)
+        {
+            return await _contactInfoRepository.GetByIdAsync(id);
+        }
+
+        public async Task CreateContactInfo(ContactInfo contactInfo)
+        {
+            await _contactInfoRepository.CreateAsync(contactInfo);
+        }
+
+        public async Task DeleteContactInfo(ContactInfo contactInfo)
+        {
+            await _contactInfoRepository.DeleteAsync(contactInfo);
+        }
+
         public async Task LoadDoctorSpecialities(Doctor doctor)
         {
             await _doctorRepository.LoadSpecialitiesAsync(doctor);
+        }
+
+        public async Task LoadDoctorServices(Doctor doctor)
+        {
+            await _doctorRepository.LoadServicesAsync(doctor);
         }
     }
 }
