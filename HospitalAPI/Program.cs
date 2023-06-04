@@ -1,10 +1,14 @@
 using HospitalAPI.Database;
+using HospitalAPI.Repositories.Appointments;
+using HospitalAPI.Repositories.Appointments.Impls;
 using HospitalAPI.Repositories.AppointmentTimes;
 using HospitalAPI.Repositories.AppointmentTimes.Impls;
 using HospitalAPI.Repositories.ContactInfos;
 using HospitalAPI.Repositories.ContactInfos.Impls;
 using HospitalAPI.Repositories.Doctors;
 using HospitalAPI.Repositories.Doctors.Impls;
+using HospitalAPI.Repositories.Patients;
+using HospitalAPI.Repositories.Patients.Impls;
 using HospitalAPI.Repositories.Services;
 using HospitalAPI.Repositories.Services.Impls;
 using HospitalAPI.Repositories.Shifts;
@@ -15,6 +19,8 @@ using HospitalAPI.Repositories.WorkHistories;
 using HospitalAPI.Repositories.WorkHistories.Impls;
 using HospitalAPI.Services.Doctors;
 using HospitalAPI.Services.Doctors.Impls;
+using HospitalAPI.Services.Patients;
+using HospitalAPI.Services.Patients.Impls;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,9 +45,12 @@ builder.Services.AddScoped<IAppointmentTimeRepository, AppointmentTimeRepository
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IShiftRepository, ShiftRepository>();
 builder.Services.AddScoped<IContactInfoRepository, ContactInfoRepository>();
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
 //Services
 builder.Services.AddScoped<IDoctorsService, DoctorsService>();
+builder.Services.AddScoped<IPatientsService, PatientsService>();
 
 var app = builder.Build();
 

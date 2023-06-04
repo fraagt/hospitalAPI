@@ -29,7 +29,7 @@ namespace HospitalAPI.Services.Doctors
         Task<Shift?> GetShiftById(int id);
         Task CreateShift(Shift shift);
         Task DeleteShift(Shift shift);
-        Task<IEnumerable<ContactInfo>> GetContactInfos();
+        Task<IEnumerable<ContactInfo>> GetContactInfosByDoctor(Doctor doctor);
         Task<ContactInfo?> GetContactInfoById(int id);
         Task CreateContactInfo(ContactInfo contactInfo);
         Task DeleteContactInfo(ContactInfo contactInfo);

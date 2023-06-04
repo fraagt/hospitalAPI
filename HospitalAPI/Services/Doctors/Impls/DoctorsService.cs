@@ -1,4 +1,5 @@
 using HospitalAPI.Database;
+using HospitalAPI.Models.ContactInfos;
 using HospitalAPI.Repositories.AppointmentTimes;
 using HospitalAPI.Repositories.ContactInfos;
 using HospitalAPI.Repositories.Doctors;
@@ -163,9 +164,10 @@ namespace HospitalAPI.Services.Doctors.Impls
             await _shiftRepository.DeleteAsync(shift);
         }
 
-        public async Task<IEnumerable<ContactInfo>> GetContactInfos()
+        public async Task<IEnumerable<ContactInfo>> GetContactInfosByDoctor(Doctor doctor)
         {
-            return await _contactInfoRepository.GetAsync();
+            var filter = new ContactInfoFilter {DoctorId = doctor.IdDoctor};
+            return await _contactInfoRepository.GetAsync(filter);
         }
 
         public async Task<ContactInfo?> GetContactInfoById(int id)

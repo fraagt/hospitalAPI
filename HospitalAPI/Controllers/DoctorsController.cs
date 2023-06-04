@@ -10,371 +10,375 @@ using HospitalAPI.Models.WorkHistories;
 using HospitalAPI.Services.Doctors;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HospitalAPI.Controllers;
-
-[ApiController]
-[Route("[controller]")]
-public class DoctorsController : ControllerBase
+namespace HospitalAPI.Controllers
 {
-    private readonly IDoctorsService _doctorsService;
-    private readonly IMapper _mapper;
-
-    public DoctorsController(
-        IDoctorsService doctorsService,
-        IMapper mapper)
+    [ApiController]
+    [Route("[controller]")]
+    public class DoctorsController : ControllerBase
     {
-        _doctorsService = doctorsService;
-        _mapper = mapper;
-    }
+        private readonly IDoctorsService _doctorsService;
+        private readonly IMapper _mapper;
 
-    [HttpGet("getDoctors")]
-    public async Task<ActionResult<DoctorReadDto>> GetDoctors()
-    {
-        var doctors = await _doctorsService.GetDoctors();
+        public DoctorsController(
+            IDoctorsService doctorsService,
+            IMapper mapper)
+        {
+            _doctorsService = doctorsService;
+            _mapper = mapper;
+        }
 
-        var doctorReadDtos = _mapper.Map<IEnumerable<DoctorReadDto>>(doctors);
+        [HttpGet("getDoctors")]
+        public async Task<ActionResult<DoctorReadDto>> GetDoctors()
+        {
+            var doctors = await _doctorsService.GetDoctors();
 
-        return Ok(doctorReadDtos);
-    }
+            var doctorReadDtos = _mapper.Map<IEnumerable<DoctorReadDto>>(doctors);
 
-    [HttpGet("getDoctor/{id}")]
-    public async Task<ActionResult<DoctorReadDto>> GetDoctor(int id)
-    {
-        if (id <= 0)
-            return BadRequest("Invalid ID");
+            return Ok(doctorReadDtos);
+        }
 
-        var doctor = await _doctorsService.GetDoctorById(id);
+        [HttpGet("getDoctor/{id}")]
+        public async Task<ActionResult<DoctorReadDto>> GetDoctor(int id)
+        {
+            if (id <= 0)
+                return BadRequest("Invalid ID");
 
-        if (doctor == null)
-            return NotFound();
+            var doctor = await _doctorsService.GetDoctorById(id);
 
-        var doctorReadDto = _mapper.Map<DoctorReadDto>(doctor);
+            if (doctor == null)
+                return NotFound();
 
-        return Ok(doctorReadDto);
-    }
+            var doctorReadDto = _mapper.Map<DoctorReadDto>(doctor);
 
-    [HttpPut("changeDoctor/{id}")]
-    public async Task<ActionResult> ChangeDoctor(int id, DoctorUpdateDto doctorUpdateDto)
-    {
-        var doctor = await _doctorsService.GetDoctorById(id);
+            return Ok(doctorReadDto);
+        }
 
-        if (doctor == null)
-            return NotFound();
+        [HttpPut("changeDoctor/{id}")]
+        public async Task<ActionResult> ChangeDoctor(int id, DoctorUpdateDto doctorUpdateDto)
+        {
+            var doctor = await _doctorsService.GetDoctorById(id);
 
-        _mapper.Map(doctorUpdateDto, doctor);
+            if (doctor == null)
+                return NotFound();
 
-        await _doctorsService.UpdateDoctor(doctor);
+            _mapper.Map(doctorUpdateDto, doctor);
 
-        return NoContent();
-    }
+            await _doctorsService.UpdateDoctor(doctor);
 
-    [HttpGet("getWorkHistories")]
-    public async Task<ActionResult<WorkHistoryReadDto>> GetWorkHistories()
-    {
-        var workHistories = await _doctorsService.GetWorkHistories();
+            return NoContent();
+        }
 
-        var workHistoriesReadDto = _mapper.Map<IEnumerable<WorkHistoryReadDto>>(workHistories);
+        [HttpGet("getWorkHistories")]
+        public async Task<ActionResult<WorkHistoryReadDto>> GetWorkHistories()
+        {
+            var workHistories = await _doctorsService.GetWorkHistories();
 
-        return Ok(workHistoriesReadDto);
-    }
+            var workHistoriesReadDto = _mapper.Map<IEnumerable<WorkHistoryReadDto>>(workHistories);
 
-    [HttpPost("createWorkHistory")]
-    public async Task<ActionResult<WorkHistoryReadDto>> CreateWorkHistory(WorkHistoryCreateDto workHistoryCreateDto)
-    {
-        //TODO it is needed to take logined doctor first and than create a workHistory for him
-        var doctorId = 1;
+            return Ok(workHistoriesReadDto);
+        }
 
-        var doctor = await _doctorsService.GetDoctorById(doctorId);
-        if (doctor == null)
-            return BadRequest("Doctor not found");
-        
-        var workHistory = _mapper.Map<WorkHistory>(workHistoryCreateDto);
-        doctor.WorkHistories.Add(workHistory);
-        await _doctorsService.UpdateDoctor(doctor);
-        
-        var workHistoryReadDto = _mapper.Map<WorkHistoryReadDto>(workHistory);
-        return Created(string.Empty, workHistoryReadDto);
-    }
+        [HttpPost("createWorkHistory")]
+        public async Task<ActionResult<WorkHistoryReadDto>> CreateWorkHistory(WorkHistoryCreateDto workHistoryCreateDto)
+        {
+            //TODO it is needed to take logined doctor first and than create a workHistory for him
+            var doctorId = 1;
 
-    [HttpDelete("removeWorkHistory")]
-    public async Task<ActionResult> RemoveWorkHistory(int id)
-    {
-        var workHistory = await _doctorsService.GetWorkHistoryById(id);
+            var doctor = await _doctorsService.GetDoctorById(doctorId);
+            if (doctor == null)
+                return BadRequest("Doctor not found");
 
-        if (workHistory == null)
-            return NotFound();
+            var workHistory = _mapper.Map<WorkHistory>(workHistoryCreateDto);
+            doctor.WorkHistories.Add(workHistory);
+            await _doctorsService.UpdateDoctor(doctor);
 
-        await _doctorsService.DeleteWorkHistory(workHistory);
+            var workHistoryReadDto = _mapper.Map<WorkHistoryReadDto>(workHistory);
+            return Created(string.Empty, workHistoryReadDto);
+        }
 
-        return NoContent();
-    }
+        [HttpDelete("removeWorkHistory")]
+        public async Task<ActionResult> RemoveWorkHistory(int id)
+        {
+            var workHistory = await _doctorsService.GetWorkHistoryById(id);
 
-    [HttpGet("getSpecialities")]
-    public async Task<ActionResult<SpecialityReadDto>> GetSpecialities()
-    {
-        var specialities = await _doctorsService.GetSpecialities();
+            if (workHistory == null)
+                return NotFound();
 
-        var specialitiesReadDto = _mapper.Map<IEnumerable<SpecialityReadDto>>(specialities);
+            await _doctorsService.DeleteWorkHistory(workHistory);
 
-        return Ok(specialitiesReadDto);
-    }
+            return NoContent();
+        }
 
-    [HttpPost("createSpeciality")]
-    public async Task<ActionResult<SpecialityReadDto>> CreateSpeciality(SpecialityCreateDto specialityCreateDto)
-    {
-        var speciality = _mapper.Map<Speciality>(specialityCreateDto);
+        [HttpGet("getSpecialities")]
+        public async Task<ActionResult<SpecialityReadDto>> GetSpecialities()
+        {
+            var specialities = await _doctorsService.GetSpecialities();
 
-        await _doctorsService.CreateSpeciality(speciality);
+            var specialitiesReadDto = _mapper.Map<IEnumerable<SpecialityReadDto>>(specialities);
 
-        var specialityReadDto = _mapper.Map<SpecialityReadDto>(speciality);
+            return Ok(specialitiesReadDto);
+        }
 
-        return Created(string.Empty, specialityReadDto);
-    }
+        [HttpPost("createSpeciality")]
+        public async Task<ActionResult<SpecialityReadDto>> CreateSpeciality(SpecialityCreateDto specialityCreateDto)
+        {
+            var speciality = _mapper.Map<Speciality>(specialityCreateDto);
 
-    [HttpDelete("removeSpeciality")]
-    public async Task<ActionResult> RemoveSpeciality(int id)
-    {
-        var speciality = await _doctorsService.GetSpecialityById(id);
+            await _doctorsService.CreateSpeciality(speciality);
 
-        if (speciality == null)
-            return NotFound();
+            var specialityReadDto = _mapper.Map<SpecialityReadDto>(speciality);
 
-        await _doctorsService.DeleteSpeciality(speciality);
+            return Created(string.Empty, specialityReadDto);
+        }
 
-        return NoContent();
-    }
+        [HttpDelete("removeSpeciality")]
+        public async Task<ActionResult> RemoveSpeciality(int id)
+        {
+            var speciality = await _doctorsService.GetSpecialityById(id);
 
-    [HttpPost("addDoctorSpeciality")]
-    public async Task<ActionResult> AddDoctorSpeciality(int doctorId, int specialityId)
-    {
-        var doctor = await _doctorsService.GetDoctorById(doctorId);
-        if (doctor == null)
-            return NotFound("Doctor not found");
-        
-        await _doctorsService.LoadDoctorSpecialities(doctor);
-        if (doctor.IdSpecialities.Any(s => s.IdSpeciality == specialityId))
-            return BadRequest("Doctor already has this speciality");
+            if (speciality == null)
+                return NotFound();
 
-        var speciality = await _doctorsService.GetSpecialityById(specialityId);
-        if (speciality == null)
-            return NotFound("Speciality not found");
+            await _doctorsService.DeleteSpeciality(speciality);
 
-        doctor.IdSpecialities.Add(speciality);
-        await _doctorsService.UpdateDoctor(doctor);
+            return NoContent();
+        }
 
-        return Ok();
-    }
+        [HttpPost("addDoctorSpeciality")]
+        public async Task<ActionResult> AddDoctorSpeciality(int doctorId, int specialityId)
+        {
+            var doctor = await _doctorsService.GetDoctorById(doctorId);
+            if (doctor == null)
+                return NotFound("Doctor not found");
 
-    [HttpDelete("removeDoctorSpeciality")]
-    public async Task<ActionResult> RemoveDoctorSpeciality(int doctorId, int specialityId)
-    {
-        var doctor = await _doctorsService.GetDoctorById(doctorId);
-        if (doctor == null)
-            return NotFound("Doctor not found");
+            await _doctorsService.LoadDoctorSpecialities(doctor);
+            if (doctor.IdSpecialities.Any(s => s.IdSpeciality == specialityId))
+                return BadRequest("Doctor already has this speciality");
 
-        await _doctorsService.LoadDoctorSpecialities(doctor);
-        var speciality = doctor.IdSpecialities.FirstOrDefault(s => s.IdSpeciality == specialityId);
+            var speciality = await _doctorsService.GetSpecialityById(specialityId);
+            if (speciality == null)
+                return NotFound("Speciality not found");
 
-        if (speciality == null)
-            return NotFound("Doctor doesn't have this speciality");
+            doctor.IdSpecialities.Add(speciality);
+            await _doctorsService.UpdateDoctor(doctor);
 
-        doctor.IdSpecialities.Remove(speciality);
-        await _doctorsService.UpdateDoctor(doctor);
+            return Ok();
+        }
 
-        return NoContent();
-    }
+        [HttpDelete("removeDoctorSpeciality")]
+        public async Task<ActionResult> RemoveDoctorSpeciality(int doctorId, int specialityId)
+        {
+            var doctor = await _doctorsService.GetDoctorById(doctorId);
+            if (doctor == null)
+                return NotFound("Doctor not found");
 
-    [HttpGet("getAppointmentTimes")]
-    public async Task<ActionResult<AppointmentTimeReadDto>> GetAppointmentTimes()
-    {
-        var appointmentTimes = await _doctorsService.GetAppointmentTimes();
-
-        var appointmentTimesReadDto = _mapper.Map<IEnumerable<AppointmentTimeReadDto>>(appointmentTimes);
+            await _doctorsService.LoadDoctorSpecialities(doctor);
+            var speciality = doctor.IdSpecialities.FirstOrDefault(s => s.IdSpeciality == specialityId);
 
-        return Ok(appointmentTimesReadDto);
-    }
+            if (speciality == null)
+                return NotFound("Doctor doesn't have this speciality");
 
-    [HttpPost("createAppointmentTime")]
-    public async Task<ActionResult> CreateAppointmentTime(AppointmentTimeCreateDto appointmentTimeCreateDto)
-    {
-        //TODO it is needed to take logined doctor first and than create a workHistory for him
-        var doctorId = 1;
-        var doctor = await _doctorsService.GetDoctorById(doctorId);
+            doctor.IdSpecialities.Remove(speciality);
+            await _doctorsService.UpdateDoctor(doctor);
 
-        var appointmentTime = _mapper.Map<AppointmentTime>(appointmentTimeCreateDto);
-        appointmentTime.IdDoctorNavigation = doctor!;
+            return NoContent();
+        }
 
-        await _doctorsService.CreateAppointmentTime(appointmentTime);
+        [HttpGet("getAppointmentTimes")]
+        public async Task<ActionResult<AppointmentTimeReadDto>> GetAppointmentTimes()
+        {
+            var appointmentTimes = await _doctorsService.GetAppointmentTimes();
 
-        var appointmentTimeReadDto = _mapper.Map<AppointmentTimeReadDto>(appointmentTime);
+            var appointmentTimesReadDto = _mapper.Map<IEnumerable<AppointmentTimeReadDto>>(appointmentTimes);
 
-        return Created(string.Empty, appointmentTimeReadDto);
-    }
+            return Ok(appointmentTimesReadDto);
+        }
 
-    [HttpDelete("removeAppointmentTime")]
-    public async Task<ActionResult> RemoveAppointmentTime(int id)
-    {
-        var appointmentTime = await _doctorsService.GetAppointmentTimeById(id);
+        [HttpPost("createAppointmentTime")]
+        public async Task<ActionResult> CreateAppointmentTime(AppointmentTimeCreateDto appointmentTimeCreateDto)
+        {
+            //TODO it is needed to take logined doctor first and than create a workHistory for him
+            var doctorId = 1;
+            var doctor = await _doctorsService.GetDoctorById(doctorId);
 
-        if (appointmentTime == null)
-            return NotFound();
+            var appointmentTime = _mapper.Map<AppointmentTime>(appointmentTimeCreateDto);
+            appointmentTime.IdDoctorNavigation = doctor!;
 
-        await _doctorsService.DeleteAppointmentTime(appointmentTime);
+            await _doctorsService.CreateAppointmentTime(appointmentTime);
 
-        return NoContent();
-    }
-    
-    [HttpGet("getServices")]
-    public async Task<ActionResult<ServiceReadDto>> GetServices()
-    {
-        var services = await _doctorsService.GetServices();
+            var appointmentTimeReadDto = _mapper.Map<AppointmentTimeReadDto>(appointmentTime);
 
-        var servicesReadDto = _mapper.Map<IEnumerable<ServiceReadDto>>(services);
+            return Created(string.Empty, appointmentTimeReadDto);
+        }
 
-        return Ok(servicesReadDto);
-    }
+        [HttpDelete("removeAppointmentTime")]
+        public async Task<ActionResult> RemoveAppointmentTime(int id)
+        {
+            var appointmentTime = await _doctorsService.GetAppointmentTimeById(id);
 
-    [HttpPost("createService")]
-    public async Task<ActionResult> CreateService(ServiceCreateDto serviceCreateDto)
-    {
-        var service = _mapper.Map<Service>(serviceCreateDto);
+            if (appointmentTime == null)
+                return NotFound();
 
-        await _doctorsService.CreateService(service);
+            await _doctorsService.DeleteAppointmentTime(appointmentTime);
 
-        var serviceReadDto = _mapper.Map<ServiceReadDto>(service);
+            return NoContent();
+        }
 
-        return Created(string.Empty, serviceReadDto);
-    }
+        [HttpGet("getServices")]
+        public async Task<ActionResult<ServiceReadDto>> GetServices()
+        {
+            var services = await _doctorsService.GetServices();
 
-    [HttpDelete("removeService")]
-    public async Task<ActionResult> RemoveService(int id)
-    {
-        var service = await _doctorsService.GetServiceById(id);
+            var servicesReadDto = _mapper.Map<IEnumerable<ServiceReadDto>>(services);
 
-        if (service == null)
-            return NotFound();
+            return Ok(servicesReadDto);
+        }
 
-        await _doctorsService.DeleteService(service);
+        [HttpPost("createService")]
+        public async Task<ActionResult> CreateService(ServiceCreateDto serviceCreateDto)
+        {
+            var service = _mapper.Map<Service>(serviceCreateDto);
 
-        return NoContent();
-    }
+            await _doctorsService.CreateService(service);
 
-    [HttpPost("addDoctorService")]
-    public async Task<ActionResult> AddDoctorService(int doctorId, int serviceId)
-    {
-        var doctor = await _doctorsService.GetDoctorById(doctorId);
-        if (doctor == null)
-            return NotFound("Doctor not found");
+            var serviceReadDto = _mapper.Map<ServiceReadDto>(service);
 
-        await _doctorsService.LoadDoctorServices(doctor);
-        if (doctor.IdServices.Any(s => s.IdService == serviceId))
-            return BadRequest("Doctor already has this service");
-    
-        var service = await _doctorsService.GetServiceById(serviceId);
-        if (service == null)
-            return NotFound("Service not found");
-    
-        doctor.IdServices.Add(service);
-        await _doctorsService.UpdateDoctor(doctor);
-    
-        return Ok();
-    }
-    
-    [HttpDelete("removeDoctorService")]
-    public async Task<ActionResult> RemoveDoctorService(int doctorId, int serviceId)
-    {
-        var doctor = await _doctorsService.GetDoctorById(doctorId);
-        if (doctor == null)
-            return NotFound("Doctor not found");
+            return Created(string.Empty, serviceReadDto);
+        }
 
-        await _doctorsService.LoadDoctorServices(doctor);
-        var service = doctor.IdServices.FirstOrDefault(s => s.IdService == serviceId);
+        [HttpDelete("removeService")]
+        public async Task<ActionResult> RemoveService(int id)
+        {
+            var service = await _doctorsService.GetServiceById(id);
 
-        if (service == null)
-            return NotFound("Doctor doesn't have this speciality");
+            if (service == null)
+                return NotFound();
 
-        doctor.IdServices.Remove(service);
-        await _doctorsService.UpdateDoctor(doctor);
+            await _doctorsService.DeleteService(service);
 
-        return NoContent();
-    }
+            return NoContent();
+        }
 
-    [HttpGet("getShifts")]
-    public async Task<ActionResult<ShiftReadDto>> GetShifts()
-    {
-        var shifts = await _doctorsService.GetShifts();
+        [HttpPost("addDoctorService")]
+        public async Task<ActionResult> AddDoctorService(int doctorId, int serviceId)
+        {
+            var doctor = await _doctorsService.GetDoctorById(doctorId);
+            if (doctor == null)
+                return NotFound("Doctor not found");
 
-        var shiftsReadDto = _mapper.Map<IEnumerable<ShiftReadDto>>(shifts);
+            await _doctorsService.LoadDoctorServices(doctor);
+            if (doctor.IdServices.Any(s => s.IdService == serviceId))
+                return BadRequest("Doctor already has this service");
 
-        return Ok(shiftsReadDto);
-    }
+            var service = await _doctorsService.GetServiceById(serviceId);
+            if (service == null)
+                return NotFound("Service not found");
 
-    [HttpPost("createShift")]
-    public async Task<ActionResult> CreateShift(ShiftCreateDto shiftCreateDto)
-    {
-        //TODO it is needed to take logined doctor first and than create a workHistory for him
-        var doctorId = 1;
+            doctor.IdServices.Add(service);
+            await _doctorsService.UpdateDoctor(doctor);
 
-        var shift = _mapper.Map<Shift>(shiftCreateDto);
-        shift.IdDoctor = doctorId;
+            return Ok();
+        }
 
-        await _doctorsService.CreateShift(shift);
+        [HttpDelete("removeDoctorService")]
+        public async Task<ActionResult> RemoveDoctorService(int doctorId, int serviceId)
+        {
+            var doctor = await _doctorsService.GetDoctorById(doctorId);
+            if (doctor == null)
+                return NotFound("Doctor not found");
 
-        var shiftReadDto = _mapper.Map<ShiftReadDto>(shift);
+            await _doctorsService.LoadDoctorServices(doctor);
+            var service = doctor.IdServices.FirstOrDefault(s => s.IdService == serviceId);
 
-        return Created(string.Empty, shiftReadDto);
-    }
+            if (service == null)
+                return NotFound("Doctor doesn't have this speciality");
 
-    [HttpDelete("removeShift")]
-    public async Task<ActionResult> RemoveShift(int id)
-    {
-        var shift = await _doctorsService.GetShiftById(id);
+            doctor.IdServices.Remove(service);
+            await _doctorsService.UpdateDoctor(doctor);
 
-        if (shift == null)
-            return NotFound();
+            return NoContent();
+        }
 
-        await _doctorsService.DeleteShift(shift);
+        [HttpGet("getShifts")]
+        public async Task<ActionResult<ShiftReadDto>> GetShifts()
+        {
+            var shifts = await _doctorsService.GetShifts();
 
-        return NoContent();
-    }
+            var shiftsReadDto = _mapper.Map<IEnumerable<ShiftReadDto>>(shifts);
 
-    [HttpGet("getContactInfos")]
-    public async Task<ActionResult<ContactInfoReadDto>> GetContactInfos()
-    {
-        var contactInfos = await _doctorsService.GetContactInfos();
+            return Ok(shiftsReadDto);
+        }
 
-        var contactInfosReadDto = _mapper.Map<IEnumerable<ContactInfoReadDto>>(contactInfos);
+        [HttpPost("createShift")]
+        public async Task<ActionResult> CreateShift(ShiftCreateDto shiftCreateDto)
+        {
+            //TODO it is needed to take logined doctor first and than create a workHistory for him
+            var doctorId = 1;
 
-        return Ok(contactInfosReadDto);
-    }
+            var shift = _mapper.Map<Shift>(shiftCreateDto);
+            shift.IdDoctor = doctorId;
 
-    [HttpPost("createContactInfo")]
-    public async Task<ActionResult> CreateContactInfo(ContactInfoCreateDto contactInfoCreateDto)
-    {
-        //TODO it is needed to take logined doctor first and than create a workHistory for him
-        var doctorId = 1;
-        var doctor = await _doctorsService.GetDoctorById(doctorId);
+            await _doctorsService.CreateShift(shift);
 
-        var contactInfo = _mapper.Map<ContactInfo>(contactInfoCreateDto);
-        contactInfo.IdDoctors.Add(doctor!);
+            var shiftReadDto = _mapper.Map<ShiftReadDto>(shift);
 
-        await _doctorsService.CreateContactInfo(contactInfo);
+            return Created(string.Empty, shiftReadDto);
+        }
 
-        var contactInfoReadDto = _mapper.Map<ContactInfoReadDto>(contactInfo);
+        [HttpDelete("removeShift")]
+        public async Task<ActionResult> RemoveShift(int id)
+        {
+            var shift = await _doctorsService.GetShiftById(id);
 
-        return Created(string.Empty, contactInfoReadDto);
-    }
+            if (shift == null)
+                return NotFound();
 
-    [HttpDelete("removeContactInfo")]
-    public async Task<ActionResult> RemoveContactInfo(int id)
-    {
-        var contactInfo = await _doctorsService.GetContactInfoById(id);
+            await _doctorsService.DeleteShift(shift);
 
-        if (contactInfo == null)
-            return NotFound();
+            return NoContent();
+        }
 
-        await _doctorsService.DeleteContactInfo(contactInfo);
+        [HttpGet("getContactInfos")]
+        public async Task<ActionResult<ContactInfoReadDto>> GetContactInfos(int doctorId)
+        {
+            var doctor = await _doctorsService.GetDoctorById(doctorId);
+            if (doctor == null)
+                return NotFound("Doctor not found");
 
-        return NoContent();
+            var contactInfos = await _doctorsService.GetContactInfosByDoctor(doctor);
+
+            var contactInfosReadDto = _mapper.Map<IEnumerable<ContactInfoReadDto>>(contactInfos);
+            return Ok(contactInfosReadDto);
+        }
+
+        [HttpPost("createContactInfo")]
+        public async Task<ActionResult> CreateContactInfo(ContactInfoCreateDto contactInfoCreateDto)
+        {
+            //TODO it is needed to take logined doctor first and than create a workHistory for him
+            var doctorId = 1;
+            var doctor = await _doctorsService.GetDoctorById(doctorId);
+
+            var contactInfo = _mapper.Map<ContactInfo>(contactInfoCreateDto);
+            contactInfo.IdDoctors.Add(doctor!);
+
+            await _doctorsService.CreateContactInfo(contactInfo);
+
+            var contactInfoReadDto = _mapper.Map<ContactInfoReadDto>(contactInfo);
+
+            return Created(string.Empty, contactInfoReadDto);
+        }
+
+        [HttpDelete("removeContactInfo")]
+        public async Task<ActionResult> RemoveContactInfo(int id)
+        {
+            var contactInfo = await _doctorsService.GetContactInfoById(id);
+
+            if (contactInfo == null)
+                return NotFound();
+
+            await _doctorsService.DeleteContactInfo(contactInfo);
+
+            return NoContent();
+        }
     }
 }
