@@ -2,7 +2,7 @@
 {
     public partial class AppointmentStatus
     {
-        public int IsAppointmentStatus { get; set; }
+        public int IdAppointmentStatus { get; set; }
 
         public string Title { get; set; } = null!;
 

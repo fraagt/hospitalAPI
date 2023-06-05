@@ -155,11 +155,11 @@ namespace HospitalAPI.Database
 
             modelBuilder.Entity<AppointmentStatus>(entity =>
             {
-                entity.HasKey(e => e.IsAppointmentStatus).HasName("PRIMARY");
+                entity.HasKey(e => e.IdAppointmentStatus).HasName("PRIMARY");
 
                 entity.ToTable("appointment_status");
 
-                entity.Property(e => e.IsAppointmentStatus).HasColumnName("isAppointmentStatus");
+                entity.Property(e => e.IdAppointmentStatus).HasColumnName("idAppointmentStatus");
                 entity.Property(e => e.Title)
                     .HasMaxLength(20)
                     .HasColumnName("title");
@@ -167,19 +167,19 @@ namespace HospitalAPI.Database
 
             modelBuilder.Entity<AppointmentStatusChange>(entity =>
             {
-                entity.HasKey(e => new { e.IdAppointmentStatusChange, e.IdAppointment, e.IsAppointmentStatus }).HasName("PRIMARY");
+                entity.HasKey(e => new { e.IdAppointmentStatusChange, e.IdAppointment, e.IdAppointmentStatus }).HasName("PRIMARY");
 
                 entity.ToTable("appointment_status_change");
 
                 entity.HasIndex(e => e.IdAppointment, "R_38");
 
-                entity.HasIndex(e => e.IsAppointmentStatus, "R_39");
+                entity.HasIndex(e => e.IdAppointmentStatus, "R_39");
 
                 entity.Property(e => e.IdAppointmentStatusChange)
                     .ValueGeneratedOnAdd()
                     .HasColumnName("idAppointmentStatusChange");
                 entity.Property(e => e.IdAppointment).HasColumnName("idAppointment");
-                entity.Property(e => e.IsAppointmentStatus).HasColumnName("isAppointmentStatus");
+                entity.Property(e => e.IdAppointmentStatus).HasColumnName("idAppointmentStatus");
                 entity.Property(e => e.CreatedAt)
                     .HasDefaultValueSql("CURRENT_TIMESTAMP")
                     .HasColumnType("timestamp")
@@ -189,8 +189,8 @@ namespace HospitalAPI.Database
                     .HasForeignKey(d => d.IdAppointment)
                     .HasConstraintName("appointment_status_change_ibfk_1");
 
-                entity.HasOne(d => d.IsAppointmentStatusNavigation).WithMany(p => p.AppointmentStatusChanges)
-                    .HasForeignKey(d => d.IsAppointmentStatus)
+                entity.HasOne(d => d.IdAppointmentStatusNavigation).WithMany(p => p.AppointmentStatusChanges)
+                    .HasForeignKey(d => d.IdAppointmentStatus)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("appointment_status_change_ibfk_2");
             });

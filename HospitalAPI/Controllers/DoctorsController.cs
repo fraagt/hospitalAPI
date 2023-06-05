@@ -83,14 +83,11 @@ namespace HospitalAPI.Controllers
         {
             //TODO it is needed to take logined doctor first and than create a workHistory for him
             var doctorId = 1;
-
             var doctor = await _doctorsService.GetDoctorById(doctorId);
-            if (doctor == null)
-                return BadRequest("Doctor not found");
 
             var workHistory = _mapper.Map<WorkHistory>(workHistoryCreateDto);
-            doctor.WorkHistories.Add(workHistory);
-            await _doctorsService.UpdateDoctor(doctor);
+            workHistory.IdDoctorNavigation = doctor!;
+            await _doctorsService.CreateWorkHistory(workHistory);
 
             var workHistoryReadDto = _mapper.Map<WorkHistoryReadDto>(workHistory);
             return Created(string.Empty, workHistoryReadDto);

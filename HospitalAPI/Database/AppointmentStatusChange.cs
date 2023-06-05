@@ -6,12 +6,12 @@
 
         public int IdAppointment { get; set; }
 
-        public int IsAppointmentStatus { get; set; }
+        public int IdAppointmentStatus { get; set; }
 
         public DateTime CreatedAt { get; set; }
 
         public virtual Appointment IdAppointmentNavigation { get; set; } = null!;
 
-        public virtual AppointmentStatus IsAppointmentStatusNavigation { get; set; } = null!;
+        public virtual AppointmentStatus IdAppointmentStatusNavigation { get; set; } = null!;
     }
 }
