@@ -1,6 +1,6 @@
-﻿namespace HospitalAPI.Database
+﻿namespace HospitalAPI.Models.Prescriptions
 {
-    public partial class Prescription
+    public class PrescriptionReadDto
     {
         public int IdPrescription { get; set; }
 
@@ -21,7 +21,5 @@
         public string AdverseReactions { get; set; } = null!;
 
         public string StorageRequirements { get; set; } = null!;
-
-        public virtual MedicalRecord IdMedicalRecordNavigation { get; set; } = null!;
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace HospitalAPI.Database
+﻿namespace HospitalAPI.Models.Attachments
 {
-    public partial class Attachment
+    public class AttachmentReadDto
     {
         public int IdAttachment { get; set; }
 
@@ -11,7 +11,5 @@
         public string FileType { get; set; } = null!;
 
         public byte[] FileBytes { get; set; } = null!;
-
-        public virtual MedicalRecord IdMedicalRecordNavigation { get; set; } = null!;
     }
 }

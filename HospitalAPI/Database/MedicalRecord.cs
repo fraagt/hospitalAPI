@@ -14,7 +14,7 @@
 
         public bool HasPrescriptions { get; set; }
 
-        public bool HasDiagnosis { get; set; }
+        public bool HasDiagnoses { get; set; }
 
         public virtual ICollection<Attachment> Attachments { get; set; } = new List<Attachment>();
 

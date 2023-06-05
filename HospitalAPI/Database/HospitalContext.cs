@@ -35,10 +35,6 @@ namespace HospitalAPI.Database
 
         public virtual DbSet<Doctor> Doctors { get; set; }
 
-        public virtual DbSet<FileDatum> FileData { get; set; }
-
-        public virtual DbSet<FileMetadatum> FileMetadata { get; set; }
-
         public virtual DbSet<Gender> Genders { get; set; }
 
         public virtual DbSet<MedicalCard> MedicalCards { get; set; }
@@ -224,29 +220,29 @@ namespace HospitalAPI.Database
 
             modelBuilder.Entity<Attachment>(entity =>
             {
-                entity.HasKey(e => new { e.IdAttachment, e.IdFileMetadata, e.IdFileData, e.IdMedicalRecord }).HasName("PRIMARY");
+                entity.HasKey(e => new { e.IdAttachment, e.IdMedicalRecord }).HasName("PRIMARY");
 
                 entity.ToTable("attachment");
-
-                entity.HasIndex(e => new { e.IdFileMetadata, e.IdFileData }, "R_51");
 
                 entity.HasIndex(e => e.IdMedicalRecord, "R_52");
 
                 entity.Property(e => e.IdAttachment)
                     .ValueGeneratedOnAdd()
                     .HasColumnName("idAttachment");
-                entity.Property(e => e.IdFileMetadata).HasColumnName("idFileMetadata");
-                entity.Property(e => e.IdFileData).HasColumnName("idFileData");
                 entity.Property(e => e.IdMedicalRecord).HasColumnName("idMedicalRecord");
+                entity.Property(e => e.FileBytes)
+                    .HasColumnType("mediumblob")
+                    .HasColumnName("file_bytes");
+                entity.Property(e => e.FileName)
+                    .HasMaxLength(255)
+                    .HasColumnName("file_name");
+                entity.Property(e => e.FileType)
+                    .HasMaxLength(32)
+                    .HasColumnName("file_type");
 
                 entity.HasOne(d => d.IdMedicalRecordNavigation).WithMany(p => p.Attachments)
                     .HasForeignKey(d => d.IdMedicalRecord)
                     .HasConstraintName("attachment_ibfk_2");
-
-                entity.HasOne(d => d.IdFile).WithMany(p => p.Attachments)
-                    .HasForeignKey(d => new { d.IdFileMetadata, d.IdFileData })
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("attachment_ibfk_1");
             });
 
             modelBuilder.Entity<Blood>(entity =>
@@ -402,44 +398,6 @@ namespace HospitalAPI.Database
                         });
             });
 
-            modelBuilder.Entity<FileDatum>(entity =>
-            {
-                entity.HasKey(e => e.IdFileData).HasName("PRIMARY");
-
-                entity.ToTable("file_data");
-
-                entity.Property(e => e.IdFileData).HasColumnName("idFileData");
-                entity.Property(e => e.FileBytes)
-                    .HasColumnType("mediumblob")
-                    .HasColumnName("file_bytes");
-            });
-
-            modelBuilder.Entity<FileMetadatum>(entity =>
-            {
-                entity.HasKey(e => new { e.IdFileMetadata, e.IdFileData }).HasName("PRIMARY");
-
-                entity.ToTable("file_metadata");
-
-                entity.HasIndex(e => e.IdFileData, "R_49");
-
-                entity.Property(e => e.IdFileMetadata)
-                    .ValueGeneratedOnAdd()
-                    .HasColumnName("idFileMetadata");
-                entity.Property(e => e.IdFileData).HasColumnName("idFileData");
-                entity.Property(e => e.FileName)
-                    .HasMaxLength(255)
-                    .HasColumnName("file_name");
-                entity.Property(e => e.FileType)
-                    .HasMaxLength(32)
-                    .HasColumnName("file_type");
-                entity.Property(e => e.SizeByte).HasColumnName("size_byte");
-
-                entity.HasOne(d => d.IdFileDataNavigation).WithMany(p => p.FileMetadata)
-                    .HasForeignKey(d => d.IdFileData)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("file_metadata_ibfk_1");
-            });
-
             modelBuilder.Entity<Gender>(entity =>
             {
                 entity.HasKey(e => e.IdGender).HasName("PRIMARY");
@@ -488,7 +446,7 @@ namespace HospitalAPI.Database
 
                 entity.Property(e => e.IdMedicalRecord).HasColumnName("idMedicalRecord");
                 entity.Property(e => e.HasAttachments).HasColumnName("has_attachments");
-                entity.Property(e => e.HasDiagnosis).HasColumnName("has_diagnosis");
+                entity.Property(e => e.HasDiagnoses).HasColumnName("has_diagnoses");
                 entity.Property(e => e.HasPrescriptions).HasColumnName("has_prescriptions");
                 entity.Property(e => e.IdDoctor).HasColumnName("idDoctor");
                 entity.Property(e => e.IdMedicalCard).HasColumnName("idMedicalCard");
@@ -588,9 +546,9 @@ namespace HospitalAPI.Database
                     .HasMaxLength(20)
                     .HasColumnName("medicine_strength");
                 entity.Property(e => e.RefillsCount).HasColumnName("refills_count");
-                entity.Property(e => e.ReouteOfAdministration)
+                entity.Property(e => e.RouteOfAdministration)
                     .HasMaxLength(20)
-                    .HasColumnName("reoute_of_administration");
+                    .HasColumnName("route_of_administration");
                 entity.Property(e => e.StorageRequirements)
                     .HasMaxLength(255)
                     .HasColumnName("storage_requirements");
