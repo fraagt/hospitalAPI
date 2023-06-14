@@ -29,6 +29,11 @@ namespace HospitalAPI.Services.Patients.Impls
             return await _patientRepository.GetByIdAsync(id);
         }
 
+        public async Task CreatePatient(Patient patient)
+        {
+            await _patientRepository.CreateAsync(patient);
+        }
+
         public async Task UpdatePatient(Patient patient)
         {
             await _patientRepository.Update(patient);

@@ -1,3 +1,4 @@
+using System.Text;
 using HospitalAPI.Database;
 using HospitalAPI.Repositories.Allergens;
 using HospitalAPI.Repositories.Allergens.Impls;
@@ -35,8 +36,12 @@ using HospitalAPI.Repositories.Shifts;
 using HospitalAPI.Repositories.Shifts.Impls;
 using HospitalAPI.Repositories.Specialities;
 using HospitalAPI.Repositories.Specialities.Impls;
+using HospitalAPI.Repositories.Users;
+using HospitalAPI.Repositories.Users.Impls;
 using HospitalAPI.Repositories.WorkHistories;
 using HospitalAPI.Repositories.WorkHistories.Impls;
+using HospitalAPI.Services.Accounts;
+using HospitalAPI.Services.Accounts.Impls;
 using HospitalAPI.Services.Appointments;
 using HospitalAPI.Services.Appointments.Impls;
 using HospitalAPI.Services.Doctors;
@@ -45,6 +50,10 @@ using HospitalAPI.Services.MedicalCards;
 using HospitalAPI.Services.MedicalCards.Impls;
 using HospitalAPI.Services.Patients;
 using HospitalAPI.Services.Patients.Impls;
+using HospitalAPI.Services.Tokens;
+using HospitalAPI.Services.Tokens.Impls;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,12 +90,29 @@ builder.Services.AddScoped<IDiagnosisRepository, DiagnosisRepository>();
 builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 builder.Services.AddScoped<IAllergenRepository, AllergenRepository>();
 builder.Services.AddScoped<IAllergyRepository, AllergyRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 //Services
 builder.Services.AddScoped<IDoctorsService, DoctorsService>();
 builder.Services.AddScoped<IPatientsService, PatientsService>();
 builder.Services.AddScoped<IAppointmentsService, AppointmentsService>();
 builder.Services.AddScoped<IMedicalCardsService, MedicalCardsService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+
+//Identity
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["TokenKey"]!)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
 
 var app = builder.Build();
 
@@ -99,6 +125,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

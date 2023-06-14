@@ -8,10 +8,14 @@ using HospitalAPI.Models.Shifts;
 using HospitalAPI.Models.Specialities;
 using HospitalAPI.Models.WorkHistories;
 using HospitalAPI.Services.Doctors;
+using HospitalAPI.Utils.Roles.Attributes;
+using HospitalAPI.Utils.Roles.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HospitalAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class DoctorsController : ControllerBase
@@ -53,6 +57,7 @@ namespace HospitalAPI.Controllers
             return Ok(doctorReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Administrator | EUserRole.Doctor)]
         [HttpPut("changeDoctor/{id}")]
         public async Task<ActionResult> ChangeDoctor(int id, DoctorUpdateDto doctorUpdateDto)
         {
@@ -78,6 +83,7 @@ namespace HospitalAPI.Controllers
             return Ok(workHistoriesReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createWorkHistory")]
         public async Task<ActionResult<WorkHistoryReadDto>> CreateWorkHistory(WorkHistoryCreateDto workHistoryCreateDto)
         {
@@ -93,6 +99,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, workHistoryReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeWorkHistory")]
         public async Task<ActionResult> RemoveWorkHistory(int id)
         {
@@ -116,6 +123,7 @@ namespace HospitalAPI.Controllers
             return Ok(specialitiesReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Administrator)]
         [HttpPost("createSpeciality")]
         public async Task<ActionResult<SpecialityReadDto>> CreateSpeciality(SpecialityCreateDto specialityCreateDto)
         {
@@ -128,6 +136,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, specialityReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Administrator)]
         [HttpDelete("removeSpeciality")]
         public async Task<ActionResult> RemoveSpeciality(int id)
         {
@@ -141,6 +150,7 @@ namespace HospitalAPI.Controllers
             return NoContent();
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("addDoctorSpeciality")]
         public async Task<ActionResult> AddDoctorSpeciality(int doctorId, int specialityId)
         {
@@ -162,6 +172,7 @@ namespace HospitalAPI.Controllers
             return Ok();
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeDoctorSpeciality")]
         public async Task<ActionResult> RemoveDoctorSpeciality(int doctorId, int specialityId)
         {
@@ -191,6 +202,7 @@ namespace HospitalAPI.Controllers
             return Ok(appointmentTimesReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createAppointmentTime")]
         public async Task<ActionResult> CreateAppointmentTime(AppointmentTimeCreateDto appointmentTimeCreateDto)
         {
@@ -208,6 +220,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, appointmentTimeReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeAppointmentTime")]
         public async Task<ActionResult> RemoveAppointmentTime(int id)
         {
@@ -220,7 +233,7 @@ namespace HospitalAPI.Controllers
 
             return NoContent();
         }
-
+        
         [HttpGet("getServices")]
         public async Task<ActionResult<ServiceReadDto>> GetServices()
         {
@@ -231,6 +244,7 @@ namespace HospitalAPI.Controllers
             return Ok(servicesReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Administrator)]
         [HttpPost("createService")]
         public async Task<ActionResult> CreateService(ServiceCreateDto serviceCreateDto)
         {
@@ -243,6 +257,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, serviceReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Administrator)]
         [HttpDelete("removeService")]
         public async Task<ActionResult> RemoveService(int id)
         {
@@ -256,6 +271,7 @@ namespace HospitalAPI.Controllers
             return NoContent();
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("addDoctorService")]
         public async Task<ActionResult> AddDoctorService(int doctorId, int serviceId)
         {
@@ -277,6 +293,7 @@ namespace HospitalAPI.Controllers
             return Ok();
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeDoctorService")]
         public async Task<ActionResult> RemoveDoctorService(int doctorId, int serviceId)
         {
@@ -306,6 +323,7 @@ namespace HospitalAPI.Controllers
             return Ok(shiftsReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createShift")]
         public async Task<ActionResult> CreateShift(ShiftCreateDto shiftCreateDto)
         {
@@ -322,6 +340,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, shiftReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeShift")]
         public async Task<ActionResult> RemoveShift(int id)
         {
@@ -348,6 +367,7 @@ namespace HospitalAPI.Controllers
             return Ok(contactInfosReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createContactInfo")]
         public async Task<ActionResult> CreateContactInfo(ContactInfoCreateDto contactInfoCreateDto)
         {
@@ -365,6 +385,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, contactInfoReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeContactInfo")]
         public async Task<ActionResult> RemoveContactInfo(int id)
         {

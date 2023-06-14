@@ -4,10 +4,14 @@ using HospitalAPI.Models.Appointments;
 using HospitalAPI.Models.AppointmentStatusChanges;
 using HospitalAPI.Services.Appointments;
 using HospitalAPI.Services.Patients;
+using HospitalAPI.Utils.Roles.Attributes;
+using HospitalAPI.Utils.Roles.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HospitalAPI.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class AppointmentsController : ControllerBase
@@ -37,6 +41,7 @@ namespace HospitalAPI.Controllers
             return Ok(appointmentReadDtos);
         }
 
+        [RoleAuthorize(EUserRole.Patient)]
         [HttpPost("createAppointment")]
         public async Task<ActionResult<AppointmentReadDto>> CreateAppointment(AppointmentCreateDto appointmentCreateDto)
         {
@@ -52,7 +57,7 @@ namespace HospitalAPI.Controllers
             var appointmentReadDto = _mapper.Map<AppointmentReadDto>(appointment);
             return Created(string.Empty, appointmentReadDto);
         }
-
+        
         [HttpGet("getAppointmentStatuses")]
         public async Task<ActionResult<AppointmentReadDto>> GetAppointmentStatuses()
         {
@@ -62,7 +67,7 @@ namespace HospitalAPI.Controllers
 
             return Ok(appointmentStatusesReadDtos);
         }
-
+        
         [HttpGet("getAppointmentStatusChanges")]
         public async Task<ActionResult<AppointmentStatusChangeReadDto>> GetAppointmentStatusChanges(int appointmentId)
         {
@@ -78,6 +83,7 @@ namespace HospitalAPI.Controllers
             return Ok(appointmentStatusesReadDtos);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("changeAppointmentStatus")]
         public async Task<ActionResult<AppointmentStatusChangeReadDto>> ChangeAppointmentStatus(
             AppointmentStatusChangeCreateDto appointmentStatusChangeCreateDto)
@@ -101,6 +107,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, appointmentStatusChangeReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Patient)]
         [HttpPost("cancelAppointment")]
         public async Task<ActionResult<AppointmentStatusChangeReadDto>> CancelAppointment(int appointmentId)
         {

@@ -6,6 +6,7 @@ namespace HospitalAPI.Repositories.Patients
     {
         Task<IEnumerable<Patient>> GetAsync();
         Task<Patient?> GetByIdAsync(int id);
+        Task CreateAsync(Patient patient);
         Task Update(Patient patient);
     }
 }

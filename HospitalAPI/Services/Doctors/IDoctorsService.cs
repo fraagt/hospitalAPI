@@ -7,6 +7,7 @@ namespace HospitalAPI.Services.Doctors
         Task<IEnumerable<Doctor>> GetDoctors();
         Task<Doctor?> GetDoctorById(int id);
         Task<bool> HasDoctor(int id);
+        Task CreateDoctor(Doctor doctor);
         Task UpdateDoctor(Doctor doctor);
         Task<IEnumerable<WorkHistory>> GetWorkHistories();
         Task CreateWorkHistory(WorkHistory workHistory);

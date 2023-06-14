@@ -3,6 +3,8 @@ using HospitalAPI.Database;
 using HospitalAPI.Models.ContactInfos;
 using HospitalAPI.Models.Patients;
 using HospitalAPI.Services.Patients;
+using HospitalAPI.Utils.Roles.Attributes;
+using HospitalAPI.Utils.Roles.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HospitalAPI.Controllers
@@ -23,6 +25,7 @@ namespace HospitalAPI.Controllers
             _mapper = mapper;
         }
 
+        [RoleAuthorize(EUserRole.Administrator | EUserRole.Doctor)]
         [HttpGet("getPatients")]
         public async Task<ActionResult<PatientReadDto>> GetPatients()
         {
@@ -48,6 +51,7 @@ namespace HospitalAPI.Controllers
             return Ok(patientReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Patient)]
         [HttpPut("changePatient/{id}")]
         public async Task<ActionResult> ChangePatient(int id, PatientUpdateDto patientUpdateDto)
         {
@@ -61,7 +65,7 @@ namespace HospitalAPI.Controllers
 
             return NoContent();
         }
-
+        
         [HttpGet("getContactInfos")]
         public async Task<ActionResult<ContactInfoReadDto>> GetContactInfos(int patientId)
         {
@@ -76,6 +80,7 @@ namespace HospitalAPI.Controllers
             return Ok(contactInfosReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Patient)]
         [HttpPost("createContactInfo")]
         public async Task<ActionResult> CreateContactInfo(ContactInfoCreateDto contactInfoCreateDto)
         {
@@ -93,6 +98,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, contactInfoReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Patient)]
         [HttpDelete("removeContactInfo")]
         public async Task<ActionResult> RemoveContactInfo(int id)
         {

@@ -31,6 +31,12 @@ namespace HospitalAPI.Repositories.Doctors.Impls
             return await _doctors.AnyAsync(doctor => doctor.IdDoctor == id);
         }
 
+        public async Task CreateAsync(Doctor doctor)
+        {
+            await _doctors.AddAsync(doctor);
+            await _hospitalContext.SaveChangesAsync();
+        }
+
         public async Task UpdateAsync(Doctor doctor)
         {
             _doctors.Entry(doctor).State = EntityState.Modified;

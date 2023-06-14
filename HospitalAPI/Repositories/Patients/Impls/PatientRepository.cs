@@ -26,6 +26,12 @@ namespace HospitalAPI.Repositories.Patients.Impls
             return await _patients.FirstOrDefaultAsync(patient => patient.IdPatient == id);
         }
 
+        public async Task CreateAsync(Patient patient)
+        {
+            await _patients.AddAsync(patient);
+            await _hospitalContext.SaveChangesAsync();
+        }
+
         public async Task Update(Patient patient)
         {
             _patients.Entry(patient)

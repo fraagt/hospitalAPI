@@ -54,6 +54,11 @@ namespace HospitalAPI.Services.Doctors.Impls
             return await _doctorRepository.HasAsync(id);
         }
 
+        public async Task CreateDoctor(Doctor doctor)
+        {
+            await _doctorRepository.CreateAsync(doctor);
+        }
+
         public async Task UpdateDoctor(Doctor doctor)
         {
             await _doctorRepository.UpdateAsync(doctor);

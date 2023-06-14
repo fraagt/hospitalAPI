@@ -9,6 +9,8 @@ using HospitalAPI.Models.MedicalCards;
 using HospitalAPI.Models.MedicalRecords;
 using HospitalAPI.Models.Prescriptions;
 using HospitalAPI.Services.MedicalCards;
+using HospitalAPI.Utils.Roles.Attributes;
+using HospitalAPI.Utils.Roles.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HospitalAPI.Controllers
@@ -29,6 +31,7 @@ namespace HospitalAPI.Controllers
             _mapper = mapper;
         }
 
+        [RoleAuthorize(EUserRole.Administrator | EUserRole.Doctor)]
         [HttpGet("getMedicalCards")]
         public async Task<ActionResult<MedicalCardReadDto>> GetMedicalCards()
         {
@@ -54,6 +57,7 @@ namespace HospitalAPI.Controllers
             return Ok(medicalCardReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Patient | EUserRole.Doctor)]
         [HttpPut("changeMedicalCard/{id}")]
         public async Task<ActionResult> ChangeMedicalCard(int id, MedicalCardUpdateDto medicalCardUpdateDto)
         {
@@ -79,6 +83,7 @@ namespace HospitalAPI.Controllers
             return Ok(bloodTypesReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createBloodType")]
         public async Task<ActionResult<BloodReadDto>> CreateBloodType(BloodCreateDto bloodTypeCreateDto)
         {
@@ -91,6 +96,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, bloodTypeReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeBloodType")]
         public async Task<ActionResult> RemoveBloodType(int id)
         {
@@ -129,6 +135,7 @@ namespace HospitalAPI.Controllers
             return Ok(medicalRecordReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createMedicalRecord")]
         public async Task<ActionResult<MedicalRecordReadDto>> CreateMedicalRecord(MedicalRecordCreateDto medicalRecordCreateDto)
         {
@@ -145,6 +152,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, medicalRecordReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPut("changeMedicalRecord/{id}")]
         public async Task<ActionResult> ChangeMedicalRecord(int id, MedicalRecordUpdateDto medicalRecordUpdateDto)
         {
@@ -160,6 +168,7 @@ namespace HospitalAPI.Controllers
             return NoContent();
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeMedicalRecord")]
         public async Task<ActionResult> RemoveMedicalRecord(int id)
         {
@@ -204,6 +213,7 @@ namespace HospitalAPI.Controllers
             return Ok(prescriptionReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createPrescription")]
         public async Task<ActionResult<PrescriptionReadDto>> CreatePrescription(PrescriptionCreateDto prescriptionCreateDto)
         {
@@ -216,6 +226,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, prescriptionReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPut("changePrescription/{id}")]
         public async Task<ActionResult> ChangePrescription(int id, PrescriptionUpdateDto prescriptionUpdateDto)
         {
@@ -231,6 +242,7 @@ namespace HospitalAPI.Controllers
             return NoContent();
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removePrescription")]
         public async Task<ActionResult> RemovePrescription(int id)
         {
@@ -244,6 +256,7 @@ namespace HospitalAPI.Controllers
             return NoContent();
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpGet("getDiagnoses")]
         public async Task<ActionResult<DiagnosisReadDto>> GetDiagnoses()
         {
@@ -269,6 +282,7 @@ namespace HospitalAPI.Controllers
             return Ok(diagnosisReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createDiagnosis")]
         public async Task<ActionResult<DiagnosisReadDto>> CreateDiagnosis(DiagnosisCreateDto diagnosisCreateDto)
         {
@@ -281,6 +295,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, diagnosisReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPut("changeDiagnosis/{id}")]
         public async Task<ActionResult> ChangeDiagnosis(int id, DiagnosisUpdateDto diagnosisUpdateDto)
         {
@@ -296,6 +311,7 @@ namespace HospitalAPI.Controllers
             return NoContent();
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeDiagnosis")]
         public async Task<ActionResult> RemoveDiagnosis(int id)
         {
@@ -334,6 +350,7 @@ namespace HospitalAPI.Controllers
             return Ok(attachmentReadDto);
         }
         
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createAttachment")]
         public async Task<ActionResult<AttachmentReadDto>> CreateAttachment(AttachmentCreateDto attachmentCreateDto)
         {
@@ -346,6 +363,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, attachmentReadDto);
         }
         
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPut("changeAttachment/{id}")]
         public async Task<ActionResult> ChangeAttachment(int id, AttachmentUpdateDto attachmentUpdateDto)
         {
@@ -361,6 +379,7 @@ namespace HospitalAPI.Controllers
             return NoContent();
         }
         
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeAttachment")]
         public async Task<ActionResult> RemoveAttachment(int id)
         {
@@ -399,6 +418,7 @@ namespace HospitalAPI.Controllers
             return Ok(allergyReadDto);
         }
         
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createAllergy")]
         public async Task<ActionResult<AllergyReadDto>> CreateAllergy(AllergyCreateDto allergyCreateDto)
         {
@@ -411,6 +431,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, allergyReadDto);
         }
         
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPut("changeAllergy/{id}")]
         public async Task<ActionResult> ChangeAllergy(int id, AllergyUpdateDto allergyUpdateDto)
         {
@@ -426,6 +447,7 @@ namespace HospitalAPI.Controllers
             return NoContent();
         }
         
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeAllergy")]
         public async Task<ActionResult> RemoveAllergy(int id)
         {
@@ -449,6 +471,7 @@ namespace HospitalAPI.Controllers
             return Ok(allergensReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createAllergen")]
         public async Task<ActionResult<AllergenReadDto>> CreateAllergen(AllergenCreateDto allergenCreateDto)
         {
@@ -461,6 +484,7 @@ namespace HospitalAPI.Controllers
             return Created(string.Empty, allergenReadDto);
         }
 
+        [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeAllergen")]
         public async Task<ActionResult> RemoveAllergen(int id)
         {
