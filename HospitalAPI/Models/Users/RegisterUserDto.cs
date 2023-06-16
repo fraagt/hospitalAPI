@@ -1,6 +1,6 @@
-﻿namespace HospitalAPI.Models.Accounts
+﻿namespace HospitalAPI.Models.Users
 {
-    public abstract class RegisterUserDto
+    public class RegisterUserDto
     {
         public string Login { get; set; } = null!;
 

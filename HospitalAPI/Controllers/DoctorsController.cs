@@ -3,11 +3,14 @@ using HospitalAPI.Database;
 using HospitalAPI.Models.AppointmentTimes;
 using HospitalAPI.Models.ContactInfos;
 using HospitalAPI.Models.Doctors;
+using HospitalAPI.Models.Patients;
 using HospitalAPI.Models.Services;
 using HospitalAPI.Models.Shifts;
 using HospitalAPI.Models.Specialities;
 using HospitalAPI.Models.WorkHistories;
 using HospitalAPI.Services.Doctors;
+using HospitalAPI.Utils.Identity;
+using HospitalAPI.Utils.Identity.Extensions;
 using HospitalAPI.Utils.Roles.Attributes;
 using HospitalAPI.Utils.Roles.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -31,6 +34,7 @@ namespace HospitalAPI.Controllers
             _mapper = mapper;
         }
 
+        [AllowAnonymous]
         [HttpGet("getDoctors")]
         public async Task<ActionResult<DoctorReadDto>> GetDoctors()
         {
@@ -41,6 +45,7 @@ namespace HospitalAPI.Controllers
             return Ok(doctorReadDtos);
         }
 
+        [AllowAnonymous]
         [HttpGet("getDoctor/{id}")]
         public async Task<ActionResult<DoctorReadDto>> GetDoctor(int id)
         {
@@ -397,6 +402,23 @@ namespace HospitalAPI.Controllers
             await _doctorsService.DeleteContactInfo(contactInfo);
 
             return NoContent();
+        }
+        
+        [RoleAuthorize(EUserRole.Doctor)]
+        [HttpGet("getMyInfo")]
+        public async Task<ActionResult<DoctorReadDto>> GetMyInfo()
+        {
+            var doctorId = User.GetClaimIntValue(ClaimType.IdDoctor);
+            if (!doctorId.HasValue)
+                return Unauthorized();
+
+            var doctor = await _doctorsService.GetDoctorById(doctorId.Value);
+            if (doctor == null)
+                return NotFound();
+
+            var patientReadDto = _mapper.Map<DoctorReadDto>(doctor);
+
+            return Ok(patientReadDto);
         }
     }
 }

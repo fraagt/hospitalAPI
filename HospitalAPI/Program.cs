@@ -123,6 +123,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseCors(policyBuilder => policyBuilder.AllowAnyHeader().AllowAnyMethod()
+    .WithOrigins("http://localhost:4200"));
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

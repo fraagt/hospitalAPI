@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using HospitalAPI.Database;
-using HospitalAPI.Models.Accounts;
+using HospitalAPI.Models.Doctors;
+using HospitalAPI.Models.Patients;
+using HospitalAPI.Models.Users;
 using HospitalAPI.Services.Accounts;
 using HospitalAPI.Services.Doctors;
 using HospitalAPI.Services.Patients;
@@ -50,56 +52,55 @@ namespace HospitalAPI.Controllers
 
             if (!_accountService.CheckPassword(user, loginDto.Password))
                 return Unauthorized("Bad credentials");
-            
+
             var loginResponseDto = _mapper.Map<AuthenticationDto>(user);
             loginResponseDto.Token = await _tokenService.CreateTokenAsync(user);
 
             return Ok(loginResponseDto);
         }
-        
+
         [AllowAnonymous]
         [HttpPost("registerPatient")]
-        public async Task<ActionResult<AuthenticationDto>> RegisterPatient(RegisterPatientDto registerPatientDto)
+        public async Task<ActionResult<PatientReadDto>> RegisterPatient(RegisterPatientDto registerPatientDto)
         {
-            if (await _accountService.IsUserExist(registerPatientDto.Login))
+            if (await _accountService.GetUserByLogin(registerPatientDto.Login) != null)
                 return BadRequest("The login is already taken");
+            if (await _accountService.GetUserByEmail(registerPatientDto.Email) != null)
+                return BadRequest("The email is already taken");
 
             var user = _mapper.Map<User>(registerPatientDto);
             user.IdRole = EUserRole.Patient.ToRoleId();
-            
+
             await _accountService.RegisterUser(user, registerPatientDto.Password);
 
             var patient = _mapper.Map<Patient>(registerPatientDto);
             patient.IdUser = user.IdUser;
             await _patientsService.CreatePatient(patient);
-            
-            var authenticationDto = _mapper.Map<AuthenticationDto>(user);
-            authenticationDto.Token = await _tokenService.CreateTokenAsync(user);
 
-            return Ok(authenticationDto);
+            var patientReadDto = _mapper.Map<PatientReadDto>(patient);
+            return Created(string.Empty, patientReadDto);
         }
-        
+
         [RoleAuthorize(EUserRole.Administrator)]
         [HttpPost("registerDoctor")]
-        public async Task<ActionResult<AuthenticationDto>> RegisterDoctor(RegisterDoctorDto registerDoctorDto)
+        public async Task<ActionResult<DoctorReadDto>> RegisterDoctor(RegisterDoctorDto registerDoctorDto)
         {
-            if (await _accountService.IsUserExist(registerDoctorDto.Login))
+            if (await _accountService.GetUserByLogin(registerDoctorDto.Login) != null)
                 return BadRequest("The login is already taken");
+            if (await _accountService.GetUserByEmail(registerDoctorDto.Email) != null)
+                return BadRequest("The email is already taken");
 
             var user = _mapper.Map<User>(registerDoctorDto);
-            user.IdRole = EUserRole.Patient.ToRoleId();
-            
+            user.IdRole = EUserRole.Doctor.ToRoleId();
+
             await _accountService.RegisterUser(user, registerDoctorDto.Password);
 
             var doctor = _mapper.Map<Doctor>(registerDoctorDto);
             doctor.IdUser = user.IdUser;
             await _doctorsService.CreateDoctor(doctor);
-            
-            var authenticationDto = _mapper.Map<AuthenticationDto>(user);
-            authenticationDto.Token = await _tokenService.CreateTokenAsync(user);
 
-            return Ok(authenticationDto);
+            var doctorReadDto = _mapper.Map<DoctorReadDto>(doctor);
+            return Created(string.Empty, doctorReadDto);
         }
-
     }
 }

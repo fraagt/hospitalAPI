@@ -1,4 +1,4 @@
-﻿namespace HospitalAPI.Models.Accounts
+﻿namespace HospitalAPI.Models.Users
 {
     public class RegisterPatientDto : RegisterUserDto
     {

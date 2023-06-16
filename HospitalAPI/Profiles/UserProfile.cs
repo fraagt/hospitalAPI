@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
 using HospitalAPI.Database;
-using HospitalAPI.Models.Accounts;
+using HospitalAPI.Models.Users;
 
 namespace HospitalAPI.Profiles
 {
-    public class AccountProfile : Profile
+    public class UserProfile : Profile
     {
-        public AccountProfile()
+        public UserProfile()
         {
             CreateMap<User, AuthenticationDto>();
             CreateMap<LoginDto, User>();

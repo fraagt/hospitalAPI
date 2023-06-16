@@ -21,6 +21,11 @@ namespace HospitalAPI.Services.Accounts.Impls
             return await _userRepository.GetByLoginAsync(login);
         }
 
+        public async Task<User?> GetUserByEmail(string email)
+        {
+            return await _userRepository.GetByEmailAsync(email);
+        }
+
         public bool CheckPassword(User user, string password)
         {
             using var hmac = new HMACSHA512(user.PasswordSalt);
@@ -38,11 +43,6 @@ namespace HospitalAPI.Services.Accounts.Impls
             user.PasswordSalt = hmac.Key;
 
             await _userRepository.CreateAsync(user);
-        }
-
-        public async Task<bool> IsUserExist(string login)
-        {
-            return await GetUserByLogin(login) != null;
         }
     }
 }

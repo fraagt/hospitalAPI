@@ -1,5 +1,8 @@
-﻿using HospitalAPI.Database;
+﻿using System.Linq.Expressions;
+using HospitalAPI.Database;
+using HospitalAPI.Models.Users;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace HospitalAPI.Repositories.Users.Impls
 {
@@ -19,6 +22,11 @@ namespace HospitalAPI.Repositories.Users.Impls
         public async Task<User?> GetByLoginAsync(string login)
         {
             return await _users.FirstOrDefaultAsync(user => user.Login.Equals(login));
+        }
+
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _users.FirstOrDefaultAsync(user => user.Email.Equals(email));
         }
 
         public async Task LoadDoctorAsync(User user)

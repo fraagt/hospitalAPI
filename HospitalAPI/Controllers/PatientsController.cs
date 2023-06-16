@@ -3,6 +3,8 @@ using HospitalAPI.Database;
 using HospitalAPI.Models.ContactInfos;
 using HospitalAPI.Models.Patients;
 using HospitalAPI.Services.Patients;
+using HospitalAPI.Utils.Identity;
+using HospitalAPI.Utils.Identity.Extensions;
 using HospitalAPI.Utils.Roles.Attributes;
 using HospitalAPI.Utils.Roles.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -110,6 +112,23 @@ namespace HospitalAPI.Controllers
             await _patientsService.DeleteContactInfo(contactInfo);
 
             return NoContent();
+        }
+        
+        [RoleAuthorize(EUserRole.Patient)]
+        [HttpGet("getMyInfo")]
+        public async Task<ActionResult<PatientReadDto>> GetMyInfo()
+        {
+            var patientId = User.GetClaimIntValue(ClaimType.IdPatient);
+            if (!patientId.HasValue)
+                return Unauthorized();
+
+            var patient = await _patientsService.GetPatientById(patientId.Value);
+            if (patient == null)
+                return NotFound();
+
+            var patientReadDto = _mapper.Map<PatientReadDto>(patient);
+
+            return Ok(patientReadDto);
         }
     }
 }
