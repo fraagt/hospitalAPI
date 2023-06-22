@@ -1,4 +1,5 @@
 using HospitalAPI.Database;
+using HospitalAPI.Models.Appointments;
 using HospitalAPI.Models.AppointmentStatusChanges;
 using HospitalAPI.Repositories.Appointments;
 using HospitalAPI.Repositories.AppointmentStatusChanges;
@@ -27,9 +28,9 @@ namespace HospitalAPI.Services.Appointments.Impls
             _appointmentTimeRepository = appointmentTimeRepository;
         }
 
-        public async Task<IEnumerable<Appointment>> GetAppointments()
+        public async Task<IEnumerable<Appointment>> GetAppointments(AppointmentFilters filters)
         {
-            return await _appointmentRepository.GetAsync();
+            return await _appointmentRepository.GetAsync(filters);
         }
 
         public async Task CreateAppointment(Appointment appointment)
@@ -69,22 +70,24 @@ namespace HospitalAPI.Services.Appointments.Impls
 
             await _appointmentStatusChangeRepository.CreateAsync(appointmentStatusChange);
 
-            await _appointmentRepository.LoadAppointmentTime(appointment);
+            // await _appointmentRepository.LoadAppointmentTime(appointment);
             appointment.IdAppointmentTimeNavigation.Reserved = false;
             await _appointmentRepository.UpdateAsync(appointment);
 
             return appointmentStatusChange;
         }
 
-        public async Task<bool> CanBeCanceled(Appointment appointment)
+        public Task<bool> CanBeCanceled(Appointment appointment)
         {
-            var changes = await GetAppointmentStatusChanges(appointment);
+            // var changes = await GetAppointmentStatusChanges(appointment);
+            //
+            // var canceledStatus = await _appointmentStatusRepository.GetByTitleAsync("Canceled");
 
-            var canceledStatus = await _appointmentStatusRepository.GetByTitleAsync("Canceled");
+            var isCanceled = appointment.AppointmentStatusChanges.Any(change => change.IdAppointmentStatusNavigation.Title.Equals("Canceled"));
+            var dateDiffer = appointment.IdAppointmentTimeNavigation.Date.Millisecond - DateTime.Today.Millisecond;
+            var isExpired = dateDiffer >= 0;
 
-            var isCanceled = changes.Any(change => change.IdAppointmentStatus == canceledStatus!.IdAppointmentStatus);
-
-            return !isCanceled;
+            return  Task.FromResult(!isCanceled && !isExpired);
         }
 
         public async Task<IEnumerable<AppointmentStatusChange>> GetAppointmentStatusChanges(Appointment appointment)

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using HospitalAPI.Database;
 using HospitalAPI.Models.Doctors;
-using HospitalAPI.Models.Patients;
+using HospitalAPI.Models.Genders;
 using HospitalAPI.Models.Users;
 using HospitalAPI.Services.Accounts;
 using HospitalAPI.Services.Doctors;
@@ -56,12 +56,24 @@ namespace HospitalAPI.Controllers
             var loginResponseDto = _mapper.Map<AuthenticationDto>(user);
             loginResponseDto.Token = await _tokenService.CreateTokenAsync(user);
 
+            int? idProfile = null;
+            switch (RolesExtension.ToUserRole(user.IdRole))
+            {
+                case EUserRole.Doctor:
+                    idProfile = user.Doctors.FirstOrDefault()?.IdDoctor;
+                    break;
+                case EUserRole.Patient:
+                    idProfile = user.Patients.FirstOrDefault()?.IdPatient;
+                    break;
+            }
+
+            loginResponseDto.IdProfile = idProfile;
             return Ok(loginResponseDto);
         }
 
         [AllowAnonymous]
         [HttpPost("registerPatient")]
-        public async Task<ActionResult<PatientReadDto>> RegisterPatient(RegisterPatientDto registerPatientDto)
+        public async Task<ActionResult> RegisterPatient(RegisterPatientDto registerPatientDto)
         {
             if (await _accountService.GetUserByLogin(registerPatientDto.Login) != null)
                 return BadRequest("The login is already taken");
@@ -77,8 +89,7 @@ namespace HospitalAPI.Controllers
             patient.IdUser = user.IdUser;
             await _patientsService.CreatePatient(patient);
 
-            var patientReadDto = _mapper.Map<PatientReadDto>(patient);
-            return Created(string.Empty, patientReadDto);
+            return Ok();
         }
 
         [RoleAuthorize(EUserRole.Administrator)]
@@ -101,6 +112,17 @@ namespace HospitalAPI.Controllers
 
             var doctorReadDto = _mapper.Map<DoctorReadDto>(doctor);
             return Created(string.Empty, doctorReadDto);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("getGenders")]
+        public async Task<ActionResult<GenderReadDto>> GetGenders()
+        {
+            var genders = await _accountService.GetGenders();
+
+            var genderReadDtos = _mapper.Map<IEnumerable<GenderReadDto>>(genders);
+
+            return Ok(genderReadDtos);
         }
     }
 }

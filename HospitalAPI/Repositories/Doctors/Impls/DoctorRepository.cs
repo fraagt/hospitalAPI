@@ -1,4 +1,5 @@
 using HospitalAPI.Database;
+using HospitalAPI.Models.Doctors;
 using Microsoft.EntityFrameworkCore;
 
 namespace HospitalAPI.Repositories.Doctors.Impls
@@ -16,9 +17,24 @@ namespace HospitalAPI.Repositories.Doctors.Impls
             _doctors = hospitalContext.Doctors;
         }
 
-        public async Task<IEnumerable<Doctor>> GetAsync()
+        public async Task<IEnumerable<Doctor>> GetAsync(GetDoctorsFilters filters)
         {
-            return await _doctors.ToListAsync();
+            var query = _doctors.AsQueryable();
+
+            if (filters.IdSpeciality.HasValue)
+            {
+                query = query.Where(doctor =>
+                    doctor.IdSpecialities.Any(speciality => speciality.IdSpeciality == filters.IdSpeciality));
+            }
+
+            if (filters.AppointmentAvailableDate.HasValue)
+            {
+                query = query.Where(doctor =>
+                    doctor.AppointmentTimes.Any(time =>
+                        time.Date.Equals(filters.AppointmentAvailableDate) && !time.Reserved));
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<Doctor?> GetByIdAsync(int id)

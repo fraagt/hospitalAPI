@@ -25,7 +25,7 @@ namespace HospitalAPI.Controllers
         public MedicalCardsController(
             IMedicalCardsService medicalCardsService,
             IMapper mapper
-            )
+        )
         {
             _medicalCardsService = medicalCardsService;
             _mapper = mapper;
@@ -37,9 +37,47 @@ namespace HospitalAPI.Controllers
         {
             var medicalCards = await _medicalCardsService.GetMedicalCards();
 
-            var medicalCardReadDtos = _mapper.Map<IEnumerable<MedicalCardReadDto>>(medicalCards);
+            var medicalCardReadDtos = medicalCards.Select(MapToReadDto);
 
             return Ok(medicalCardReadDtos);
+        }
+
+        private MedicalCardReadDto MapToReadDto(MedicalCard medicalCard)
+        {
+            return new MedicalCardReadDto
+            {
+                IdMedicalCard = medicalCard.IdMedicalCard,
+                IdPatient = medicalCard.IdPatient,
+                Blood = _mapper.Map<BloodReadDto>(medicalCard.IdBloodNavigation),
+                Allergies = medicalCard.Allergies.Select(MapToReadDto),
+                MedicalRecords = medicalCard.MedicalRecords.Select(MapToReadDto)
+            };
+        }
+
+        private AllergyReadDto MapToReadDto(Allergy allergy)
+        {
+            return new AllergyReadDto
+            {
+                IdAllergy = allergy.IdMedicalCard,
+                Allergen = _mapper.Map<AllergenReadDto>(allergy.IdAllergenNavigation),
+                IdMedicalCard = allergy.IdMedicalCard,
+                SeverityLevel = allergy.SeverityLevel,
+                DiagnosisDate = allergy.DiagnosisDate
+            };
+        }
+
+        private MedicalRecordReadDto MapToReadDto(MedicalRecord medicalRecord)
+        {
+            return new MedicalRecordReadDto
+            {
+                IdMedicalRecord = medicalRecord.IdMedicalRecord,
+                IdMedicalCard = medicalRecord.IdMedicalCard,
+                IdDoctor = medicalRecord.IdDoctor,
+                Note = medicalRecord.Note,
+                Prescriptions = _mapper.Map<IEnumerable<PrescriptionReadDto>>(medicalRecord.Prescriptions),
+                Diagnoses = _mapper.Map<IEnumerable<DiagnosisReadDto>>(medicalRecord.Diagnoses),
+                Attachments = _mapper.Map<IEnumerable<AttachmentReadDto>>(medicalRecord.Attachments)
+            };
         }
 
         [HttpGet("getMedicalCard/{id}")]
@@ -52,7 +90,7 @@ namespace HospitalAPI.Controllers
             if (medicalCard == null)
                 return NotFound();
 
-            var medicalCardReadDto = _mapper.Map<MedicalCardReadDto>(medicalCard);
+            var medicalCardReadDto = MapToReadDto(medicalCard);
 
             return Ok(medicalCardReadDto);
         }
@@ -130,21 +168,22 @@ namespace HospitalAPI.Controllers
             if (medicalRecord == null)
                 return NotFound();
 
-            var medicalRecordReadDto = _mapper.Map<MedicalRecordReadDto>(medicalRecord);
+            var medicalRecordReadDto = MapToReadDto(medicalRecord);
 
             return Ok(medicalRecordReadDto);
         }
 
         [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createMedicalRecord")]
-        public async Task<ActionResult<MedicalRecordReadDto>> CreateMedicalRecord(MedicalRecordCreateDto medicalRecordCreateDto)
+        public async Task<ActionResult<MedicalRecordReadDto>> CreateMedicalRecord(
+            MedicalRecordCreateDto medicalRecordCreateDto)
         {
             //TODO take from logined user(doctor)
             var doctorId = 1;
 
             var medicalRecord = _mapper.Map<MedicalRecord>(medicalRecordCreateDto);
             medicalRecord.IdDoctor = doctorId;
-            
+
             await _medicalCardsService.CreateMedicalRecord(medicalRecord);
 
             var medicalRecordReadDto = _mapper.Map<MedicalRecordReadDto>(medicalRecord);
@@ -215,7 +254,8 @@ namespace HospitalAPI.Controllers
 
         [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createPrescription")]
-        public async Task<ActionResult<PrescriptionReadDto>> CreatePrescription(PrescriptionCreateDto prescriptionCreateDto)
+        public async Task<ActionResult<PrescriptionReadDto>> CreatePrescription(
+            PrescriptionCreateDto prescriptionCreateDto)
         {
             var prescription = _mapper.Map<Prescription>(prescriptionCreateDto);
 
@@ -324,140 +364,140 @@ namespace HospitalAPI.Controllers
 
             return NoContent();
         }
-        
+
         [HttpGet("getAttachments")]
         public async Task<ActionResult<AttachmentReadDto>> GetAttachments()
         {
             var attachments = await _medicalCardsService.GetAttachments();
-        
+
             var attachmentReadDtos = _mapper.Map<IEnumerable<AttachmentReadDto>>(attachments);
-        
+
             return Ok(attachmentReadDtos);
         }
-        
+
         [HttpGet("getAttachment/{id}")]
         public async Task<ActionResult<AttachmentReadDto>> GetAttachment(int id)
         {
             if (id <= 0)
                 return BadRequest("Invalid ID");
-        
+
             var attachment = await _medicalCardsService.GetAttachmentById(id);
             if (attachment == null)
                 return NotFound();
-        
+
             var attachmentReadDto = _mapper.Map<AttachmentReadDto>(attachment);
-        
+
             return Ok(attachmentReadDto);
         }
-        
+
         [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createAttachment")]
         public async Task<ActionResult<AttachmentReadDto>> CreateAttachment(AttachmentCreateDto attachmentCreateDto)
         {
             var attachment = _mapper.Map<Attachment>(attachmentCreateDto);
-        
+
             await _medicalCardsService.CreateAttachment(attachment);
-        
+
             var attachmentReadDto = _mapper.Map<AttachmentReadDto>(attachment);
-        
+
             return Created(string.Empty, attachmentReadDto);
         }
-        
+
         [RoleAuthorize(EUserRole.Doctor)]
         [HttpPut("changeAttachment/{id}")]
         public async Task<ActionResult> ChangeAttachment(int id, AttachmentUpdateDto attachmentUpdateDto)
         {
             var attachment = await _medicalCardsService.GetAttachmentById(id);
-        
+
             if (attachment == null)
                 return NotFound();
-        
+
             _mapper.Map(attachmentUpdateDto, attachment);
-        
+
             await _medicalCardsService.UpdateAttachment(attachment);
-        
+
             return NoContent();
         }
-        
+
         [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeAttachment")]
         public async Task<ActionResult> RemoveAttachment(int id)
         {
             var attachment = await _medicalCardsService.GetAttachmentById(id);
-        
+
             if (attachment == null)
                 return NotFound();
-        
+
             await _medicalCardsService.DeleteAttachment(attachment);
-        
+
             return NoContent();
         }
-        
+
         [HttpGet("getAllergies")]
         public async Task<ActionResult<AllergyReadDto>> GetAllergies()
         {
             var allergies = await _medicalCardsService.GetAllergies();
-        
+
             var allergyReadDtos = _mapper.Map<IEnumerable<AllergyReadDto>>(allergies);
-        
+
             return Ok(allergyReadDtos);
         }
-        
+
         [HttpGet("getAllergy/{id}")]
         public async Task<ActionResult<AllergyReadDto>> GetAllergy(int id)
         {
             if (id <= 0)
                 return BadRequest("Invalid ID");
-        
+
             var allergy = await _medicalCardsService.GetAllergyById(id);
             if (allergy == null)
                 return NotFound();
-        
+
             var allergyReadDto = _mapper.Map<AllergyReadDto>(allergy);
-        
+
             return Ok(allergyReadDto);
         }
-        
+
         [RoleAuthorize(EUserRole.Doctor)]
         [HttpPost("createAllergy")]
         public async Task<ActionResult<AllergyReadDto>> CreateAllergy(AllergyCreateDto allergyCreateDto)
         {
             var allergy = _mapper.Map<Allergy>(allergyCreateDto);
-        
+
             await _medicalCardsService.CreateAllergy(allergy);
-        
+
             var allergyReadDto = _mapper.Map<AllergyReadDto>(allergy);
-        
+
             return Created(string.Empty, allergyReadDto);
         }
-        
+
         [RoleAuthorize(EUserRole.Doctor)]
         [HttpPut("changeAllergy/{id}")]
         public async Task<ActionResult> ChangeAllergy(int id, AllergyUpdateDto allergyUpdateDto)
         {
             var allergy = await _medicalCardsService.GetAllergyById(id);
-        
+
             if (allergy == null)
                 return NotFound();
-        
+
             _mapper.Map(allergyUpdateDto, allergy);
-        
+
             await _medicalCardsService.UpdateAllergy(allergy);
-        
+
             return NoContent();
         }
-        
+
         [RoleAuthorize(EUserRole.Doctor)]
         [HttpDelete("removeAllergy")]
         public async Task<ActionResult> RemoveAllergy(int id)
         {
             var allergy = await _medicalCardsService.GetAllergyById(id);
-        
+
             if (allergy == null)
                 return NotFound();
-        
+
             await _medicalCardsService.DeleteAllergy(allergy);
-        
+
             return NoContent();
         }
 
@@ -497,6 +537,5 @@ namespace HospitalAPI.Controllers
 
             return NoContent();
         }
-
     }
 }

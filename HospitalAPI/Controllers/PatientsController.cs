@@ -1,12 +1,16 @@
-﻿using AutoMapper;
+﻿using System.Security.Claims;
+using AutoMapper;
 using HospitalAPI.Database;
 using HospitalAPI.Models.ContactInfos;
+using HospitalAPI.Models.Genders;
 using HospitalAPI.Models.Patients;
 using HospitalAPI.Services.Patients;
 using HospitalAPI.Utils.Identity;
 using HospitalAPI.Utils.Identity.Extensions;
+using HospitalAPI.Utils.Roles;
 using HospitalAPI.Utils.Roles.Attributes;
 using HospitalAPI.Utils.Roles.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HospitalAPI.Controllers
@@ -33,24 +37,49 @@ namespace HospitalAPI.Controllers
         {
             var patients = await _patientsService.GetPatients();
 
-            var patientReadDtos = _mapper.Map<IEnumerable<PatientReadDto>>(patients);
+            var patientReadDtos = patients.Select(MapToReadDto);
 
             return Ok(patientReadDtos);
         }
 
+        [Authorize]
         [HttpGet("getPatient/{id}")]
         public async Task<ActionResult<PatientReadDto>> GetPatient(int id)
         {
-            if (id <= 0)
-                return BadRequest("Invalid ID");
+            var userIdRole = User.GetClaimIntValue(ClaimType.IdRole);
+            if (!userIdRole.HasValue)
+                return Unauthorized("Not authorized user");
+            var userRole = RolesExtension.ToUserRole(userIdRole.Value);
+            if (userRole == EUserRole.Patient)
+            {
+                var idPatient = User.GetClaimIntValue(ClaimType.IdPatient);
+                if (!idPatient.HasValue || idPatient.Value != id)
+                    return Unauthorized();
+            }
+
 
             var patient = await _patientsService.GetPatientById(id);
             if (patient == null)
                 return NotFound();
 
-            var patientReadDto = _mapper.Map<PatientReadDto>(patient);
+            var patientReadDto = MapToReadDto(patient);
 
             return Ok(patientReadDto);
+        }
+
+        private PatientReadDto MapToReadDto(Patient patient)
+        {
+            return new PatientReadDto
+            {
+                IdPatient = patient.IdPatient,
+                IdUser = patient.IdUser,
+                IdMedicalCard = patient.MedicalCards.FirstOrDefault()!.IdMedicalCard,
+                Gender = _mapper.Map<GenderReadDto>(patient.IdGenderNavigation),
+                Firstname = patient.Firstname,
+                Lastname = patient.Lastname,
+                BirthDate = patient.BirthDate,
+                ContactInfos = _mapper.Map<IEnumerable<ContactInfoReadDto>>(patient.IdContactInfos)
+            };
         }
 
         [RoleAuthorize(EUserRole.Patient)]
@@ -67,14 +96,14 @@ namespace HospitalAPI.Controllers
 
             return NoContent();
         }
-        
+
         [HttpGet("getContactInfos")]
         public async Task<ActionResult<ContactInfoReadDto>> GetContactInfos(int patientId)
         {
             var patient = await _patientsService.GetPatientById(patientId);
             if (patient == null)
                 return NotFound();
-            
+
             var contactInfos = await _patientsService.GetContactInfosByPatient(patient);
 
             var contactInfosReadDto = _mapper.Map<IEnumerable<ContactInfoReadDto>>(contactInfos);
@@ -113,7 +142,7 @@ namespace HospitalAPI.Controllers
 
             return NoContent();
         }
-        
+
         [RoleAuthorize(EUserRole.Patient)]
         [HttpGet("getMyInfo")]
         public async Task<ActionResult<PatientReadDto>> GetMyInfo()

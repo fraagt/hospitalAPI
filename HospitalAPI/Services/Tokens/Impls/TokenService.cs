@@ -31,17 +31,21 @@ namespace HospitalAPI.Services.Tokens.Impls
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.NameId, user.Login),
-                new(ClaimTypes.Role, userRole.ToString())
+                new(ClaimTypes.Role, userRole.ToString()),
+                new(ClaimType.IdRole, user.IdRole.ToString())
             };
 
+            int? idProfile = null;
             switch (userRole)
             {
                 case EUserRole.Doctor:
-                    await _userRepository.LoadDoctorAsync(user);
-                    claims.Add(new Claim(ClaimType.IdDoctor, user.Doctors.First().IdDoctor.ToString()));
+                    // await _userRepository.LoadDoctorAsync(user);
+                    idProfile = user.Doctors.First().IdDoctor;
+                    claims.Add(new Claim(ClaimType.IdDoctor, idProfile.ToString()!));
                     break;
                 case EUserRole.Patient:
                     await _userRepository.LoadPatientAsync(user);
+                    idProfile = user.Patients.First().IdPatient;
                     claims.Add(new Claim(ClaimType.IdPatient, user.Patients.First().IdPatient.ToString()));
                     break;
             }

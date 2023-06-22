@@ -1,9 +1,16 @@
-﻿using AutoMapper;
+﻿using System.Collections;
+using AutoMapper;
 using HospitalAPI.Database;
 using HospitalAPI.Models.Appointments;
 using HospitalAPI.Models.AppointmentStatusChanges;
+using HospitalAPI.Models.AppointmentStatuses;
+using HospitalAPI.Models.AppointmentTimes;
+using HospitalAPI.Models.Services;
 using HospitalAPI.Services.Appointments;
 using HospitalAPI.Services.Patients;
+using HospitalAPI.Utils.Identity;
+using HospitalAPI.Utils.Identity.Extensions;
+using HospitalAPI.Utils.Roles;
 using HospitalAPI.Utils.Roles.Attributes;
 using HospitalAPI.Utils.Roles.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -31,14 +38,64 @@ namespace HospitalAPI.Controllers
             _mapper = mapper;
         }
 
+        [Authorize]
         [HttpGet("getAppointments")]
         public async Task<ActionResult<AppointmentReadDto>> GetAppointments()
         {
-            var appointments = await _appointmentsService.GetAppointments();
+            var userIdRole = User.GetClaimIntValue(ClaimType.IdRole);
+            if (!userIdRole.HasValue)
+                return Unauthorized("Not authorized user");
+            var userRole = RolesExtension.ToUserRole(userIdRole.Value);
+            var filters = new AppointmentFilters();
 
-            var appointmentReadDtos = _mapper.Map<IEnumerable<AppointmentReadDto>>(appointments);
+            if (userRole != EUserRole.Administrator)
+            {
+                var idProfileValue = User.GetClaimIntValue(ClaimType.IdProfile);
+                if (!idProfileValue.HasValue)
+                    return Unauthorized();
+                switch (userRole)
+                {
+                    case EUserRole.Patient:
+                        filters.IdPatient = idProfileValue.Value;
+                        break;
+                    case EUserRole.Doctor:
+                        filters.IdDoctor = idProfileValue.Value;
+                        break;
+                }
+            }
+
+            var appointments = await _appointmentsService.GetAppointments(filters);
+
+            var appointmentReadDtos = appointments.Select(MapToReadDto);
 
             return Ok(appointmentReadDtos);
+        }
+
+        private AppointmentReadDto MapToReadDto(Appointment appointment)
+        {
+            return new AppointmentReadDto
+            {
+                IdAppointment = appointment.IdAppointment,
+                IdPatient = appointment.IdPatient,
+                IdDoctor = appointment.IdDoctor,
+                AppointmentTime = _mapper.Map<AppointmentTimeReadDto>(appointment.IdAppointmentTimeNavigation),
+                Service = _mapper.Map<ServiceReadDto>(appointment.IdServiceNavigation),
+                CurrentStatus =
+                    _mapper.Map<AppointmentStatusReadDto>(
+                        appointment.AppointmentStatusChanges.Max(change => change.CreatedAt.Millisecond)),
+                StatusChanges = appointment.AppointmentStatusChanges.Select(MapToReadDto)
+            };
+        }
+
+        private AppointmentStatusChangeReadDto MapToReadDto(AppointmentStatusChange change)
+        {
+            return new AppointmentStatusChangeReadDto
+            {
+                IdAppointmentStatusChange = change.IdAppointmentStatusChange,
+                IdAppointment = change.IdAppointment,
+                AppointmentStatus = _mapper.Map<AppointmentStatusReadDto>(change.IdAppointmentStatusNavigation),
+                CreatedAt = change.CreatedAt
+            };
         }
 
         [RoleAuthorize(EUserRole.Patient)]
@@ -57,7 +114,7 @@ namespace HospitalAPI.Controllers
             var appointmentReadDto = _mapper.Map<AppointmentReadDto>(appointment);
             return Created(string.Empty, appointmentReadDto);
         }
-        
+
         [HttpGet("getAppointmentStatuses")]
         public async Task<ActionResult<AppointmentReadDto>> GetAppointmentStatuses()
         {
@@ -67,7 +124,7 @@ namespace HospitalAPI.Controllers
 
             return Ok(appointmentStatusesReadDtos);
         }
-        
+
         [HttpGet("getAppointmentStatusChanges")]
         public async Task<ActionResult<AppointmentStatusChangeReadDto>> GetAppointmentStatusChanges(int appointmentId)
         {
@@ -75,10 +132,11 @@ namespace HospitalAPI.Controllers
             if (appointment == null)
                 return BadRequest("Appointment not found");
 
-            var appointmentStatusChanges = 
+            var appointmentStatusChanges =
                 await _appointmentsService.GetAppointmentStatusChanges(appointment);
 
-            var appointmentStatusesReadDtos = _mapper.Map<IEnumerable<AppointmentStatusChangeReadDto>>(appointmentStatusChanges);
+            var appointmentStatusesReadDtos =
+                _mapper.Map<IEnumerable<AppointmentStatusChangeReadDto>>(appointmentStatusChanges);
 
             return Ok(appointmentStatusesReadDtos);
         }

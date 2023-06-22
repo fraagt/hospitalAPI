@@ -1,4 +1,5 @@
 using HospitalAPI.Database;
+using HospitalAPI.Models.AppointmentTimes;
 using Microsoft.EntityFrameworkCore;
 
 namespace HospitalAPI.Repositories.AppointmentTimes.Impls
@@ -15,10 +16,23 @@ namespace HospitalAPI.Repositories.AppointmentTimes.Impls
             _hospitalContext = hospitalContext;
             _appointmentTimes = hospitalContext.AppointmentTimes;
         }
-        
-        public async Task<IEnumerable<AppointmentTime>> GetAsync()
+
+        public async Task<IEnumerable<AppointmentTime>> GetAsync(AppointmentTimeFilters filters)
         {
-            return await _appointmentTimes.ToListAsync();
+            var query = _appointmentTimes.AsQueryable();
+
+            if (filters.DoctorId.HasValue)
+            {
+                query = query.Where(appointmentTime =>
+                    appointmentTime.IdDoctor.Equals(filters.DoctorId.Value));
+            }
+
+            if (filters.Date.HasValue)
+            {
+                query = query.Where(appointmentTime => appointmentTime.Date.CompareTo(filters.Date.Value) == 0);
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<AppointmentTime?> GetByIdAsync(int id)

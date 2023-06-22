@@ -6,12 +6,14 @@
 
         public static ClaimType IdPatient = new("idPatient");
         public static ClaimType IdDoctor = new("idDoctor");
+        public static ClaimType IdProfile = new("idProfile");
+        public static ClaimType IdRole = new("idRole");
 
         private ClaimType(string type)
         {
             _type = type;
         }
-        
+
         private readonly string _type;
 
         public override string ToString()

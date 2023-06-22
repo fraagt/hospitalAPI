@@ -1,8 +1,10 @@
+using System.Collections;
 using AutoMapper;
 using HospitalAPI.Database;
 using HospitalAPI.Models.AppointmentTimes;
 using HospitalAPI.Models.ContactInfos;
 using HospitalAPI.Models.Doctors;
+using HospitalAPI.Models.Genders;
 using HospitalAPI.Models.Patients;
 using HospitalAPI.Models.Services;
 using HospitalAPI.Models.Shifts;
@@ -36,11 +38,11 @@ namespace HospitalAPI.Controllers
 
         [AllowAnonymous]
         [HttpGet("getDoctors")]
-        public async Task<ActionResult<DoctorReadDto>> GetDoctors()
+        public async Task<ActionResult<DoctorReadDto>> GetDoctors([FromQuery] GetDoctorsFilters filters)
         {
-            var doctors = await _doctorsService.GetDoctors();
+            var doctors = await _doctorsService.GetDoctors(filters);
 
-            var doctorReadDtos = _mapper.Map<IEnumerable<DoctorReadDto>>(doctors);
+            var doctorReadDtos = doctors.Select(MapToReadDto).ToList();
 
             return Ok(doctorReadDtos);
         }
@@ -57,9 +59,28 @@ namespace HospitalAPI.Controllers
             if (doctor == null)
                 return NotFound();
 
-            var doctorReadDto = _mapper.Map<DoctorReadDto>(doctor);
+            var doctorReadDto = MapToReadDto(doctor);
 
             return Ok(doctorReadDto);
+        }
+
+        private DoctorReadDto MapToReadDto(Doctor doctor)
+        {
+            return new DoctorReadDto
+            {
+                IdDoctor = doctor.IdDoctor,
+                IdUser = doctor.IdUser,
+                Gender = _mapper.Map<GenderReadDto>(doctor.IdGenderNavigation),
+                Services = _mapper.Map<IEnumerable<ServiceReadDto>>(doctor.IdServices),
+                ContactInfos = _mapper.Map<IEnumerable<ContactInfoReadDto>>(doctor.IdContactInfos),
+                Specialities = _mapper.Map<IEnumerable<SpecialityReadDto>>(doctor.IdSpecialities),
+                WorkHistories = _mapper.Map<IEnumerable<WorkHistoryReadDto>>(doctor.WorkHistories),
+                AppointmentTimes = _mapper.Map<IEnumerable<AppointmentTimeReadDto>>(doctor.AppointmentTimes),
+                Biography = doctor.Biography,
+                BirthDate = doctor.BirthDate,
+                Firstname = doctor.Firstname,
+                Lastname = doctor.Lastname
+            };
         }
 
         [RoleAuthorize(EUserRole.Administrator | EUserRole.Doctor)]
@@ -77,7 +98,6 @@ namespace HospitalAPI.Controllers
 
             return NoContent();
         }
-
         [HttpGet("getWorkHistories")]
         public async Task<ActionResult<WorkHistoryReadDto>> GetWorkHistories()
         {
@@ -118,6 +138,7 @@ namespace HospitalAPI.Controllers
             return NoContent();
         }
 
+        [AllowAnonymous]
         [HttpGet("getSpecialities")]
         public async Task<ActionResult<SpecialityReadDto>> GetSpecialities()
         {
@@ -197,10 +218,12 @@ namespace HospitalAPI.Controllers
             return NoContent();
         }
 
+        [AllowAnonymous]
         [HttpGet("getAppointmentTimes")]
-        public async Task<ActionResult<AppointmentTimeReadDto>> GetAppointmentTimes()
+        public async Task<ActionResult<AppointmentTimeReadDto>> GetAppointmentTimes(
+            [FromQuery] AppointmentTimeFilters filters)
         {
-            var appointmentTimes = await _doctorsService.GetAppointmentTimes();
+            var appointmentTimes = await _doctorsService.GetAppointmentTimes(filters);
 
             var appointmentTimesReadDto = _mapper.Map<IEnumerable<AppointmentTimeReadDto>>(appointmentTimes);
 
@@ -238,7 +261,7 @@ namespace HospitalAPI.Controllers
 
             return NoContent();
         }
-        
+
         [HttpGet("getServices")]
         public async Task<ActionResult<ServiceReadDto>> GetServices()
         {
@@ -403,7 +426,7 @@ namespace HospitalAPI.Controllers
 
             return NoContent();
         }
-        
+
         [RoleAuthorize(EUserRole.Doctor)]
         [HttpGet("getMyInfo")]
         public async Task<ActionResult<DoctorReadDto>> GetMyInfo()

@@ -1,10 +1,12 @@
 using HospitalAPI.Database;
+using HospitalAPI.Models.AppointmentTimes;
+using HospitalAPI.Models.Doctors;
 
 namespace HospitalAPI.Services.Doctors
 {
     public interface IDoctorsService
     {
-        Task<IEnumerable<Doctor>> GetDoctors();
+        Task<IEnumerable<Doctor>> GetDoctors(GetDoctorsFilters filters);
         Task<Doctor?> GetDoctorById(int id);
         Task<bool> HasDoctor(int id);
         Task CreateDoctor(Doctor doctor);
@@ -18,7 +20,7 @@ namespace HospitalAPI.Services.Doctors
         Task CreateSpeciality(Speciality speciality);
         Task<Speciality?> GetSpecialityById(int id);
         Task DeleteSpeciality(Speciality speciality);
-        Task<IEnumerable<AppointmentTime>> GetAppointmentTimes();
+        Task<IEnumerable<AppointmentTime>> GetAppointmentTimes(AppointmentTimeFilters filters);
         Task CreateAppointmentTime(AppointmentTime appointmentTime);
         Task<AppointmentTime?> GetAppointmentTimeById(int id);
         Task DeleteAppointmentTime(AppointmentTime appointmentTime);

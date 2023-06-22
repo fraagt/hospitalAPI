@@ -1,5 +1,7 @@
 using HospitalAPI.Database;
+using HospitalAPI.Models.AppointmentTimes;
 using HospitalAPI.Models.ContactInfos;
+using HospitalAPI.Models.Doctors;
 using HospitalAPI.Repositories.AppointmentTimes;
 using HospitalAPI.Repositories.ContactInfos;
 using HospitalAPI.Repositories.Doctors;
@@ -39,9 +41,9 @@ namespace HospitalAPI.Services.Doctors.Impls
             _contactInfoRepository = contactInfoRepository;
         }
 
-        public async Task<IEnumerable<Doctor>> GetDoctors()
+        public async Task<IEnumerable<Doctor>> GetDoctors(GetDoctorsFilters filters)
         {
-            return await _doctorRepository.GetAsync();
+            return await _doctorRepository.GetAsync(filters);
         }
 
         public async Task<Doctor?> GetDoctorById(int id)
@@ -109,9 +111,10 @@ namespace HospitalAPI.Services.Doctors.Impls
             await _specialityRepository.DeleteAsync(speciality);
         }
 
-        public async Task<IEnumerable<AppointmentTime>> GetAppointmentTimes()
+        public async Task<IEnumerable<AppointmentTime>> GetAppointmentTimes(
+            AppointmentTimeFilters filters)
         {
-            return await _appointmentTimeRepository.GetAsync();
+            return await _appointmentTimeRepository.GetAsync(filters);
         }
 
         public async Task CreateAppointmentTime(AppointmentTime appointmentTime)

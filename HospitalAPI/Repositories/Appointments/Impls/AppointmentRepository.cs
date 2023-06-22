@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using HospitalAPI.Database;
+using HospitalAPI.Models.Appointments;
 using Microsoft.EntityFrameworkCore;
 
 namespace HospitalAPI.Repositories.Appointments.Impls
@@ -16,9 +18,40 @@ namespace HospitalAPI.Repositories.Appointments.Impls
             _appointments = hospitalContext.Appointments;
         }
 
-        public async Task<IEnumerable<Appointment>> GetAsync()
+        public async Task<IEnumerable<Appointment>> GetAsync(AppointmentFilters filters)
         {
-            return await _appointments.ToListAsync();
+            var query = _appointments.AsQueryable();
+            Expression<Func<Appointment, bool>>? combinedExpression = null;
+
+            if (filters.IdPatient.HasValue)
+            {
+                Expression<Func<Appointment, bool>> patientExpression = app => app.IdPatient == filters.IdPatient.Value;
+                combinedExpression = combinedExpression == null ? patientExpression : CombineExpressions(combinedExpression, patientExpression);
+            }
+
+            if (filters.IdDoctor.HasValue)
+            {
+                Expression<Func<Appointment, bool>> doctorExpression = app => app.IdDoctor == filters.IdDoctor.Value;
+                combinedExpression = combinedExpression == null ? doctorExpression : CombineExpressions(combinedExpression, doctorExpression);
+            }
+
+            if (combinedExpression != null)
+            {
+                query = query.Where(combinedExpression);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        private Expression<Func<T, bool>> CombineExpressions<T>(Expression<Func<T, bool>>? expression1, Expression<Func<T, bool>>? expression2)
+        {
+            var parameter = Expression.Parameter(typeof(T));
+            var combinedBody = Expression.AndAlso(
+                Expression.Invoke(expression1, parameter),
+                Expression.Invoke(expression2, parameter)
+            );
+
+            return Expression.Lambda<Func<T, bool>>(combinedBody, parameter);
         }
 
         public async Task CreateAsync(Appointment appointment)

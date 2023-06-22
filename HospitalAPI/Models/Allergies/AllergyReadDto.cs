@@ -1,10 +1,12 @@
-﻿namespace HospitalAPI.Models.Allergies
+﻿using HospitalAPI.Models.Allergens;
+
+namespace HospitalAPI.Models.Allergies
 {
     public class AllergyReadDto
     {
         public int IdAllergy { get; set; }
 
-        public int IdAllergen { get; set; }
+        public AllergenReadDto Allergen { get; set; } = null!;
 
         public int IdMedicalCard { get; set; }
 

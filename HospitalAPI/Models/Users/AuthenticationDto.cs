@@ -7,5 +7,7 @@
         public string Token { get; set; } = null!;
         
         public int IdRole { get; set; }
+        
+        public int? IdProfile { get; set; }
     }
 }

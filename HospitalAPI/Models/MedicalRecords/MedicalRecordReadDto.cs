@@ -1,4 +1,9 @@
-﻿namespace HospitalAPI.Models.MedicalRecords
+﻿using System.Collections;
+using HospitalAPI.Models.Attachments;
+using HospitalAPI.Models.Diagnoses;
+using HospitalAPI.Models.Prescriptions;
+
+namespace HospitalAPI.Models.MedicalRecords
 {
     public class MedicalRecordReadDto
     {
@@ -10,10 +15,10 @@
 
         public string Note { get; set; } = null!;
 
-        public bool HasAttachments { get; set; }
+        public IEnumerable<PrescriptionReadDto> Prescriptions { get; set; } = null!;
 
-        public bool HasPrescriptions { get; set; }
+        public IEnumerable<DiagnosisReadDto> Diagnoses { get; set; } = null!;
 
-        public bool HasDiagnoses { get; set; }
+        public IEnumerable<AttachmentReadDto> Attachments { get; set; } = null!;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using HospitalAPI.Database;
+using HospitalAPI.Repositories.Genders;
 using HospitalAPI.Repositories.Users;
 
 namespace HospitalAPI.Services.Accounts.Impls
@@ -8,12 +9,15 @@ namespace HospitalAPI.Services.Accounts.Impls
     public class AccountService : IAccountService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IGenderRepository _genderRepository;
 
         public AccountService(
-            IUserRepository userRepository
+            IUserRepository userRepository,
+            IGenderRepository genderRepository
         )
         {
             _userRepository = userRepository;
+            _genderRepository = genderRepository;
         }
 
         public async Task<User?> GetUserByLogin(string login)
@@ -43,6 +47,11 @@ namespace HospitalAPI.Services.Accounts.Impls
             user.PasswordSalt = hmac.Key;
 
             await _userRepository.CreateAsync(user);
+        }
+
+        public async Task<IEnumerable<Gender>> GetGenders()
+        {
+            return await _genderRepository.GetAsync();
         }
     }
 }

@@ -8,5 +8,6 @@ namespace HospitalAPI.Services.Accounts
         Task<User?> GetUserByEmail(string email);
         bool CheckPassword(User user, string password);
         Task RegisterUser(User user, string password);
+        Task<IEnumerable<Gender>> GetGenders();
     }
 }

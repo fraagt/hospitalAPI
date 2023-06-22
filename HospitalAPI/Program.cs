@@ -22,6 +22,8 @@ using HospitalAPI.Repositories.Diagnoses;
 using HospitalAPI.Repositories.Diagnoses.Impls;
 using HospitalAPI.Repositories.Doctors;
 using HospitalAPI.Repositories.Doctors.Impls;
+using HospitalAPI.Repositories.Genders;
+using HospitalAPI.Repositories.Genders.Impls;
 using HospitalAPI.Repositories.MedicalCards;
 using HospitalAPI.Repositories.MedicalCards.Impls;
 using HospitalAPI.Repositories.MedicalRecords;
@@ -53,6 +55,7 @@ using HospitalAPI.Services.Patients.Impls;
 using HospitalAPI.Services.Tokens;
 using HospitalAPI.Services.Tokens.Impls;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,7 +68,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 //Database
-builder.Services.AddDbContext<HospitalContext>();
+builder.Services.AddDbContext<HospitalContext>(b => b.UseLazyLoadingProxies());
 
 //Mapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -91,6 +94,7 @@ builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 builder.Services.AddScoped<IAllergenRepository, AllergenRepository>();
 builder.Services.AddScoped<IAllergyRepository, AllergyRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IGenderRepository, GenderRepository>();
 
 //Services
 builder.Services.AddScoped<IDoctorsService, DoctorsService>();

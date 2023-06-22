@@ -1,3 +1,10 @@
+using HospitalAPI.Models.AppointmentTimes;
+using HospitalAPI.Models.ContactInfos;
+using HospitalAPI.Models.Genders;
+using HospitalAPI.Models.Services;
+using HospitalAPI.Models.Specialities;
+using HospitalAPI.Models.WorkHistories;
+
 namespace HospitalAPI.Models.Doctors
 {
     public class DoctorReadDto
@@ -6,7 +13,7 @@ namespace HospitalAPI.Models.Doctors
 
         public int IdUser { get; set; }
 
-        public int? IdGender { get; set; }
+        public GenderReadDto? Gender { get; set; }
 
         public string Firstname { get; set; } = null!;
 
@@ -15,5 +22,15 @@ namespace HospitalAPI.Models.Doctors
         public DateTime BirthDate { get; set; }
 
         public string Biography { get; set; } = null!;
+
+        public IEnumerable<SpecialityReadDto> Specialities { get; set; } = null!;
+
+        public IEnumerable<WorkHistoryReadDto> WorkHistories { get; set; } = null!;
+
+        public IEnumerable<ContactInfoReadDto> ContactInfos { get; set; } = null!;
+
+        public IEnumerable<ServiceReadDto> Services { get; set; } = null!;
+        
+        public IEnumerable<AppointmentTimeReadDto> AppointmentTimes { get; set; } = null!;
     }
 }

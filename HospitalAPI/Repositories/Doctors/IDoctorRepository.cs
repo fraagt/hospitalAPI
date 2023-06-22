@@ -1,10 +1,11 @@
 using HospitalAPI.Database;
+using HospitalAPI.Models.Doctors;
 
 namespace HospitalAPI.Repositories.Doctors
 {
     public interface IDoctorRepository
     {
-        Task<IEnumerable<Doctor>> GetAsync();
+        Task<IEnumerable<Doctor>> GetAsync(GetDoctorsFilters filters);
         Task<Doctor?> GetByIdAsync(int id); 
         Task<bool> HasAsync(int id);
         Task CreateAsync(Doctor doctor);
